@@ -24,3 +24,16 @@ Contains(s,c) = {
   (true, "si: " s = h.t " y " h = c ),
   (Contains(t,c), "si: " s = h.t " y " h ≠ c)
 }
+
+ToInteger: Σ* -> Z
+ToInteger(s) = {
+  (0, "si: " s = ε),
+  ((valor(h) * 10^(GetLength(s) - 1)) + ToInteger(t), "si: " s = h.t)
+}
+
+IsPalindrome: Σ* -> B
+IsPalindrome(s) = {
+  (true, "si: " s = ε "o" GetLength(s) = 1),
+  (IsPalindrome(t_medio), "si: " s = h.t_medio.u " y " h = u),
+  (false, "en otro caso")
+  }
