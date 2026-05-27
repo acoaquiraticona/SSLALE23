@@ -37,3 +37,21 @@ IsPalindrome(s) = {
   (IsPalindrome(t_medio), "si: " s = h.t_medio.u " y " h = u),
   (false, "en otro caso")
   }
+
+Concatenate: Σ* × Σ* -> Σ*
+Concatenate(s1, s2) = { 
+  (s2, "si " s1 = ε), 
+  (h1 . Concatenate(t1, s2), "si " s1 = h1.t1) 
+  }
+
+Power: Σ* × N -> Σ*
+Power(s, n) = { 
+  (ε, "si " n = 0), 
+  (Concatenate(s, Power(s, n - 1)), "si " n > 0) 
+  }
+
+Reverse: Σ* -> Σ*
+Reverse(s) = { 
+  (ε, "si " s = ε), 
+  (Concatenate(Reverse(t), h), "si " s = h.t) 
+  }
