@@ -1,7 +1,4 @@
 #include "Strings.h"
-#include <stdbool.h>
-#include <stdlib.h>
-#include <math.h>
 
 bool IsEmpty (const char *s) {
     if(*s == '\0'){

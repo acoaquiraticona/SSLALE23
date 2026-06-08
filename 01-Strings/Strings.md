@@ -20,7 +20,7 @@ El objetivo es explicar de manera clara y sencilla las operaciones básicas sobr
 - $\varepsilon$ es la cadena vacía.
 - $h \cdot t$ indica una cadena cuyo primer caracter es $h$ y el sufijo (cola) es $t$.
 - $\mathbb{B} = \{\mathbf{true},\mathbf{false}\}$.
-- $\mathbb{N}$ incluye el cero.
+- $\mathbb{N}_0$ representa a los números naturales incluyendo el cero.
 - $\Sigma_{d} = \{\mathtt{0},\mathtt{1},\ldots,\mathtt{9}\} \subset \Sigma$.
 
 ## Cómo leer este documento
@@ -35,14 +35,14 @@ El objetivo es explicar de manera clara y sencilla las operaciones básicas sobr
 | N° | Función | Operación | Clasificación | Dominio | Codominio | Depende de |
 | :-: | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | [IsEmpty](#isempty) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{B}$ | - |
-| 2 | [GetLength](#getlength) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{N}$ | GetLength |
+| 2 | [GetLength](#getlength) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{N}_0$ | GetLength |
 | 3 | [AreEqual](#areequal) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma^{*}$ | $\mathbb{B}$ | - |
 | 4 | [AreDecimalDigits](#aredecimaldigits) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{B}$ | - |
 | 5 | [Contains](#contains) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma$ | $\mathbb{B}$ | - |
 | 6 | [ToInteger](#tointeger) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{Z}$ | - |
 | 7 | [IsPalindrome](#ispalindrome) | Consulta | Libre opción | $\Sigma^{*}$ | $\mathbb{B}$ | AreEqual, Reverse, GetLength |
 | 8 | [Concatenate](#concatenate) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \Sigma^{*}$ | $\Sigma^{*}$ | - |
-| 9 | [Power](#power) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \mathbb{N}$ | $\Sigma^{*}$ | Concatenate |
+| 9 | [Power](#power) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \mathbb{N}_0$ | $\Sigma^{*}$ | Concatenate |
 | 10 | [Reverse](#reverse) | Creación o mutación | Crédito extra & Libre opción | $\Sigma^{*}$ | $\Sigma^{*}$ | Concatenate |
 
 ## Diagrama de dependencias
@@ -90,7 +90,7 @@ $$\text{IsEmpty}(s) =
 
 ## GetLength
 
-**Definición:** $\text{GetLength}: \Sigma^{*} \to \mathbb{N}$
+**Definición:** $\text{GetLength}: \Sigma^{*} \to \mathbb{N}_0$
 
 **Descripción:** Cuenta los símbolos de la cadena recorriéndola de izquierda a derecha; suma 1 por cada símbolo encontrado.
 
@@ -202,7 +202,7 @@ $$\text{Contains}(s, c) =
 
 **Descripción:** Interpreta una cadena de dígitos decimales como un número entero no negativo, aplicando el sistema posicional con base 10.
 
-Sea $\delta : \Sigma_{d} \to \mathbb{N}$ la función que convierte cada dígito en su valor numérico ($\delta(\mathtt{7}) = 7$, etc.).
+Sea $\delta : \Sigma_{d} \to \mathbb{N}_0$ la función que convierte cada dígito en su valor numérico ($\delta(\mathtt{7}) = 7$, etc.).
 
 $$\text{ToInteger}(s) =
   \begin{cases}
@@ -296,7 +296,7 @@ Concatenate("ab", "cd")
 
 ## Power
 
-**Definición:** $\text{Power}: \Sigma^{*} \times \mathbb{N} \to \Sigma^{*}$
+**Definición:** $\text{Power}: \Sigma^{*} \times \mathbb{N}_0 \to \Sigma^{*}$
 
 **Descripción:** Repite la cadena $s$ exactamente $n$ veces, concatenando sucesivas copias.
 
