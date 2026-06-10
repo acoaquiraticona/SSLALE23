@@ -86,7 +86,7 @@ bool Contains(const char *s, char c);
 
 
 /** 
- * @brief Convierte una cadena de dígitos en un número entero positivo.
+ * @brief Convierte una cadena de dígitos en un número entero.
  *
  * @pre  s != NULL
  * @pre  IsEmpty(s) == false       (la cadena no debe estar vacía)
@@ -98,7 +98,7 @@ bool Contains(const char *s, char c);
  * @param s La cadena a convertir.
  * @return  El número entero representado por la cadena.
  */
-unsigned int ToInteger(const char *s);  // unsigned int es un tipo sin signo adecuado para representar números enteros positivos
+int ToInteger(const char *s);  // int es un tipo adecuado para representar números enteros positivos y negativos
 
 
 /** 

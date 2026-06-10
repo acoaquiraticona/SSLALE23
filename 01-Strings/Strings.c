@@ -8,7 +8,7 @@ bool IsEmpty (const char *s) {
     }
 }
 
-unsigned GetLength (const char *s){
+size_t GetLength (const char *s){
     return IsEmpty(s) ? 0 :1 + GetLength(s + 1);
 }
 
@@ -49,18 +49,21 @@ int ToInteger (const char *s){
 }
 
 bool IsPalindrome (const char *s){
-    if(IsEmpty(s)){
-        return true;
-    } else if(*s == *(s + GetLength(s) - 1)){
-        char temp[GetLength(s) - 1];
-        for(int i = 0; i < GetLength(s) - 1; i++){
-            temp[i] = *(s + i + 1);
-        }
-        temp[GetLength(s) - 1] = '\0';
-        return IsPalindrome(temp);
-    } else {
-        return false;
+    int length = (int)GetLength(s);
+    int start = 0;
+    int end = length - 1;
+
+  if (IsEmpty(s)) {
+        return true; 
     }
+    while (start < end) {
+        if (s[start] != s[end]) {
+            return false; 
+        }
+        start++;
+        end--;
+    }
+    return true;
 }
 char *Concatenate (const char *s1, const char *s2){
     char *result = malloc(GetLength(s1) + GetLength(s2) + 1);
