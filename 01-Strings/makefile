@@ -12,9 +12,6 @@ all: test_strings
 #Regla para ejecutar
 test: test_strings
 	./test_strings
-	echo -e "\nPress any key to continue..."
-	read -r -t 1 
-
 # limpieza
 clean: 
 	rm -f test_strings test_strings.exe *.o
