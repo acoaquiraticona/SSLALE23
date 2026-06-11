@@ -3,7 +3,7 @@
 
 int main (int argc, char *argv[]){
     for(char **arg = argv + 1; *arg != NULL; arg++){
-        printf("%zu\n", getLength(*arg));
+        printf("%zu\n", GetLength(*arg));
     }
     return 0;
 }
