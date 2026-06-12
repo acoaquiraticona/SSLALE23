@@ -1,8 +1,9 @@
 #ifndef STRINGS_H
 #define STRINGS_H
+
 #include <stdbool.h>
 #include <stdlib.h>
-
+#include <assert.h> // Agrego assert para forzar la definición de las precondiciones en las funciones.
 
 /* Funciones de consulta */
 

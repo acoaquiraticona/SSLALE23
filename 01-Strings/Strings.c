@@ -1,6 +1,7 @@
 #include "Strings.h"
 
 bool IsEmpty (const char *s) {
+    assert(s != NULL); // Precondición: s no debe ser NULL porque no esta definido en el dominio de la función.
     return *s == '\0';
 }
 
@@ -8,34 +9,26 @@ size_t GetLength (const char *s){
     return IsEmpty(s) ? 0 :1 + GetLength(s + 1);
 }
 
-bool AreEqual (const char *s1, const char *s2){
-    if(IsEmpty(s1) && IsEmpty(s2)){
-        return true;
-    }else if(*s1 == *s2){
-        return AreEqual(s1 + 1, s2 + 1);
-    } else {
-        return false;
-    }
+bool AreEqual(const char *s1, const char *s2){
+    return IsEmpty(s1) && IsEmpty(s2)   // Si ambas cadenas están vacías, son iguales
+           ? true
+           : (*s1 == *s2 && AreEqual(s1 + 1, s2 + 1)); // Compruebo la condición matemática y avanzo a la siguiente posición de ambas cadenas
+    // Nota: sentencia de arriba cumple el cortocircuito que describimos en la función por el &&
+}
 
+bool AreDecimalDigits(const char *s){
+    return IsEmpty(s) || // Esta vacía?
+           ((*s >= '0' && *s <= '9') && // h pertenece al rango de dígitos decimales? y...
+            AreDecimalDigits(s + 1)); // ...avanza a la siguiente posición de la cadena para seguir evaluando
 }
-bool AreDecimalDigits (const char *s){
-    if(IsEmpty(s)){
-        return true;
-    } else if(*s >= '0' && *s <= '9'){
-        return AreDecimalDigits(s + 1);
-    } else {
-        return false;
-    }
+
+bool Contains(const char *s, char c)
+{
+    return !IsEmpty(s) &&   // Si la cadena no está vacía, entonces...
+           (*s == c || Contains(s + 1, c)); // ...si el primer carácter es igual a c, retorna true; de lo contrario, avanza a la siguiente posición de la cadena para seguir buscando
+    // Nota: sentencia de arriba cumple el cortocircuito que describimos en la función por el operador ||
 }
-bool Contains (const char *s, char c){
-    if(IsEmpty(s)){
-        return false;
-    } else if(*s == c){
-        return true;
-    } else {
-        return Contains(s + 1, c);
-    }
-}
+
 int ToInteger (const char *s){
     int resultado = 0;
     for(int i = 0; s[i] != '\0'; i++){
