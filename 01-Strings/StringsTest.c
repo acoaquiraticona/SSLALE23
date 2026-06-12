@@ -1,5 +1,5 @@
 #include <assert.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include "Strings.h"
 
@@ -47,43 +47,27 @@ void testIsPalindrome (void) {
 }
 
 void testConcatenate (void) {
-    char *result = Concatenate("hello", "world");
-    assert(AreEqual(result, "helloworld") == true);
-    free(result);
+    assert(AreEqual(Concatenate("hello", "world"), "helloworld") == true);
 }
 
 void testPower (void) {
-    char *result = Power("a", 3);
-    assert(AreEqual(result, "aaa") == true);
-    free(result);
+    assert(AreEqual(Power("a", 3), "aaa") == true);
 }
 
 void testReverse (void) {
-    char *result = Reverse("hello");
-    assert(AreEqual(result, "olleh") == true);
-    free(result);
+    assert(AreEqual(Reverse("hello"), "olleh") == true);
 }
 
 int main(void){
     testIsEmpty();
-    printf("Pruebas de IsEmpty: OK\n");
     testGetLength();
-    printf("Pruebas de Getlength: OK\n");
     testAreEqual();
-    printf("Pruebas de AreEqual: OK\n");
     testAreDecimalDigits();
-    printf("Pruebas de AreDecimalDigits: OK\n");
     testContains();
-    printf("Pruebas de Contains: OK\n");
     testToInteger();
-    printf("Pruebas de ToInteger: OK\n");
     testIsPalindrome();
-    printf("Pruebas de IsPalindrome: OK\n");
     testConcatenate();
-    printf("Pruebas de Concatenate: OK\n");
     testPower();
-    printf("Pruebas de Power: OK\n");
     testReverse();
-    printf("Pruebas de Reverse: OK\n");
     return 0;
 }
