@@ -1,11 +1,7 @@
 #include "Strings.h"
 
 bool IsEmpty (const char *s) {
-    if(*s == '\0'){
-        return true;
-    } else {
-        return false;
-    }
+    return *s == '\0';
 }
 
 size_t GetLength (const char *s){
@@ -41,11 +37,11 @@ bool Contains (const char *s, char c){
     }
 }
 int ToInteger (const char *s){
-    if(IsEmpty(s)){
-        return 0;
-    } else {
-        return (*s - '0') * pow(10, GetLength(s) - 1) + ToInteger(s + 1);
+    int resultado = 0;
+    for(int i = 0; s[i] != '\0'; i++){
+        resultado = resultado * 10 + (s[i] - '0');
     }
+    return resultado;
 }
 
 bool IsPalindrome (const char *s){
@@ -66,32 +62,40 @@ bool IsPalindrome (const char *s){
     return true;
 }
 char *Concatenate (const char *s1, const char *s2){
-    char *result = malloc(GetLength(s1) + GetLength(s2) + 1);
-    for(int i = 0; i < GetLength(s1); i++){
+    size_t len1 = GetLength(s1);
+    size_t len2 = GetLength(s2);
+    char *result = malloc(len1 + len2 + 1);
+    
+    for(size_t i = 0; i < len1; i++){
         result[i] = s1[i];
     }
-    for(int j = 0; j < GetLength(s2); j++){
-        result[GetLength(s1) + j] = s2[j];
+    for(size_t j = 0; j < len2; j++){
+        result[len1 + j] = s2[j];
     }
-    result[GetLength(s1) + GetLength(s2)] = '\0';
+    result[len1 + len2] = '\0';
     return result;
 }
+
 char *Power (const char *s, unsigned n){
-    char *result = malloc(GetLength(s) * n + 1);
-    for(int i = 0; i < n; i++){
-        for(int j = 0; j < GetLength(s); j++){
-            result[i * GetLength(s) + j] = s[j];
+    size_t len = GetLength(s);
+    char *result = malloc(len * n + 1);
+    
+    for(unsigned i = 0; i < n; i++){
+        for(size_t j = 0; j < len; j++){
+            result[i * len + j] = s[j];
         }
     }
-    result[GetLength(s) * n] = '\0';
+    result[len * n] = '\0';
     return result;
 }
 
 char *Reverse (const char *s){
-    char *result = malloc(GetLength(s) + 1);
-    for(int i = 0; i < GetLength(s); i++){
-        result[i] = s[GetLength(s) - 1 - i];
+    size_t len = GetLength(s);
+    char *result = malloc(len + 1);
+    
+    for(size_t i = 0; i < len; i++){
+        result[i] = s[len - 1 - i];
     }
-    result[GetLength(s)] = '\0';
+    result[len] = '\0';
     return result;
 }
