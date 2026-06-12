@@ -1,6 +1,8 @@
+#ifndef STRINGS_H
+#define STRINGS_H
 #include <stdbool.h>
 #include <stdlib.h>
-#include <math.h>
+
 
 /* Funciones de consulta */
 
@@ -175,3 +177,5 @@ char *Power(const char *s, unsigned n);
  * @return  Un puntero a la cadena resultante, o NULL si falla la reserva.
  */
 char *Reverse(const char *s);
+
+#endif
