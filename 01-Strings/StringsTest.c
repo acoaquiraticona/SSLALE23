@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include "Strings.h"
 
 void testIsEmpty (void) {
@@ -60,14 +61,25 @@ void testReverse (void) {
 
 int main(void){
     testIsEmpty();
+    printf("testIsEmpty: OK\n");
     testGetLength();
+    printf("testGetLength: OK\n");
     testAreEqual();
+    printf("testAreEqual: OK\n");
     testAreDecimalDigits();
+    printf("testAreDecimalDigits: OK\n");
     testContains();
+    printf("testContains: OK\n");
     testToInteger();
+    printf("testToINteger: OK\n");
     testIsPalindrome();
+    printf("testIsPalindrome: OK\n");
     testConcatenate();
+    printf("testConcat: OK\n");
     testPower();
+    printf("testPower: OK\n");
     testReverse();
+    printf("testReverse: OK\n");
+    printf("Todas las funciones son correctas\n");
     return 0;
 }
