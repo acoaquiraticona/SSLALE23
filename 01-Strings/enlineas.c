@@ -2,15 +2,8 @@
 #include "Strings.h"
 
 int main(int argc, char *argv[]) {
-    for (int i = 1; i < argc; i++)
-    {
-        printf("%s", argv[i]);
-        if (i < argc - 1)
-        {
-            printf(" ");
-        }
-    }
-        
+    for (char **arg = argv + 1; *arg != NULL; arg++)
+        printf("%s\n", *arg);
     
     return 0;
 }

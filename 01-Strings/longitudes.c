@@ -2,12 +2,8 @@
 #include "Strings.h"
 
 int main(int argc, char *argv[]) {
-    for (int i = 1; i < argc; i++) {
-        printf("%zu", GetLength(argv[i]));
-        if (i < argc -1) {
-            printf( ", ");
-        }
-
-    }
+    for (char **arg = argv + 1; *arg != NULL; arg++)
+        printf("%zu\n", GetLength(*arg));
+    
     return 0;
 }
