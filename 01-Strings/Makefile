@@ -39,7 +39,7 @@ Strings.o: Strings.c Strings.h
 StringsTest.o: StringsTest.c Strings.h
 	$(CC) $(CFLAGS) -c StringsTest.c -o StringsTest.o
 
-enlineas.o: enlineas.C
+enlineas.o: enlineas.c
 	$(CC) $(CFLAGS) -c enlineas.c -o enlineas.o
 
 longitudes.o: longitudes.c Strings.h
