@@ -68,4 +68,4 @@ test: test_strings test_conversion
 	./test_conversion
 
 clean:
-	rm -f *.o *.exe test_strings test_conversion enlineas longitudes mayorlongitud todosiguales suma
+	rm -f *.o *.exe 

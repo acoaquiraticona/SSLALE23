@@ -140,14 +140,23 @@ static void testReverse(void) {
 
 int main(void) {
     testIsEmpty();
+    printf("Funcion IsEmpty: OK\n");
     testGetLength();
+    printf("Funcion GetLength: OK\n");
     testAreEqual();
+    printf("Funcion AreEqual: OK\n");
     testAreDecimalDigits();
+    printf("Funcion AreDecimalDigits: OK\n");
     testContains();
+    printf("Funcion Contains: OK\n");
     testIsPalindrome();
+    printf("Funcion IsPalindrome: OK\n");
     testConcatenate();
+    printf("Funcion Concat: OK\n");
     testPower();
+    printf("Funcion Power: OK\n");
     testReverse();
+    printf("Funcion Reverse: OK\n");
 
     return 0;
 }

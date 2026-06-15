@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdio.h>
 #include "Conversion.h"
 
 static void testToInteger(void) {
@@ -12,5 +13,6 @@ static void testToInteger(void) {
 
 int main(void) {
     testToInteger();
+    printf("Funcion ToInteger: OK\n");
     return 0;
 }
