@@ -60,7 +60,6 @@ bool AreEqual(const char *s1, const char *s2);
  * @brief Controla si una cadena contiene solo dígitos decimales.
  *
  * @pre  s != NULL
- * @pre  IsEmpty(s) == false  (la cadena no debe estar vacía)
  *
  * @post El contenido apuntado por s no es modificado.
  * @post Retorna true  si todos los caracteres de s están entre '0' y '9'.
@@ -86,22 +85,6 @@ bool AreDecimalDigits(const char *s);
  * @return  true si el carácter está presente, false en caso contrario.
  */
 bool Contains(const char *s, char c);
-
-
-/** 
- * @brief Convierte una cadena de dígitos en un número entero.
- *
- * @pre  s != NULL
- * @pre  IsEmpty(s) == false       (la cadena no debe estar vacía)
- * @pre  AreDecimalDigits(s) == true  (la cadena debe contener solo dígitos)
- *
- * @post El contenido apuntado por s no es modificado.
- * @post Retorna el valor entero representado por s (ej: "142" -> 142).
- *
- * @param s La cadena a convertir.
- * @return  El número entero representado por la cadena.
- */
-int ToInteger(const char *s);  // int es un tipo adecuado para representar números enteros positivos y negativos
 
 
 /** 

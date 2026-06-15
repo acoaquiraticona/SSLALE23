@@ -51,12 +51,12 @@
 │   ├── Conversion.c        # Implementación del módulo de conversión
 │   └── ConversionTest.c    # Pruebas unitarias del módulo Conversión
 │
-└── 🔷 Programas auxiliares
+└── 🔷 Programas con argumentos de línea de comando
     ├── enlineas.c          # Muestra cada argumento en una línea propia
     ├── longitudes.c        # Longitud de cada argumento
     ├── mayorlongitud.c     # Argumento con mayor longitud
     ├── todosiguales.c      # Uno si son todos los argumentos iguales, si no, cero
-    └── suma.c              # Suma de todos los argumentos que son enteros en base 10. Variación: signo opcional y otras bases
+    └── suma.c              # Suma de todos los argumentos que son enteros en base 10. Variación: signo opcional
 ```
 
 ---
@@ -65,15 +65,15 @@
 
 ### `String.h / String.c`
 
-Implementación de un Tipo Abstracto de Dato (TAD) **String** en C. Encapsula operaciones básicas sobre cadenas de caracteres como creación, comparación, concatenación, copia y liberación de memoria, entre otras.
+Implementación de un Tipo Abstracto de Dato (TAD) **String** en C. Encapsula las operaciones básicas de consulta y creación sobre cadenas de caracteres como IsEmpty, Reverse, Power, etc.
 
 ### `Conversion.h / Conversion.c`
 
-Módulo de **conversión** entre tipos de datos y cadenas. Permite transformar enteros, flotantes u otros tipos a su representación como string y viceversa.
+Módulo de **conversión** entre tipos de datos y cadenas. Permite transformar cadenas validas a enteros.
 
-### Programas auxiliares
+### Programas con argumentos de línea de comando
 
-Pequeños programas independientes que utilizan los módulos anteriores para resolver problemas concretos sobre arreglos de cadenas.
+Serie de programas que esperan argumentos en su línea de comandos. Todos los programas envían su salida a stdout.
 
 ---
 
@@ -86,10 +86,10 @@ Este proyecto incluye un `Makefile` para simplificar la compilación. Desde la c
 make
 
 # Compilar y ejecutar los tests del módulo String
-make string_test
+make test_strings
 
 # Compilar y ejecutar los tests del módulo Conversión
-make conversion_test
+make test_conversion
 
 # Eliminar archivos compilados
 make clean

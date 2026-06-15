@@ -11,11 +11,11 @@ En este documento explicamos las operaciones recursivas sobre cadenas (strings) 
 
 ## Objetivo
 
-El objetivo es explicar de manera clara y sencilla las operaciones básicas sobre cadenas de símbolos (strings).
+El objetivo es explicar de manera clara y sencilla las operaciones básicas sobre cadenas de caracteres (strings).
 
 ## Convenciones
 
-- $\Sigma$ es un alfabeto finito de símbolos.
+- $\Sigma$ es un alfabeto finito de caracteres.
 - $\Sigma^{*}$ es el conjunto de todas las cadenas finitas sobre $\Sigma$.
 - $\varepsilon$ es la cadena vacía.
 - $h \cdot t$ indica una cadena cuyo primer caracter es $h$ y el sufijo (cola) es $t$.
@@ -35,33 +35,51 @@ El objetivo es explicar de manera clara y sencilla las operaciones básicas sobr
 | N° | Función | Operación | Clasificación | Dominio | Codominio | Depende de |
 | :-: | :--- | :--- | :--- | :--- | :--- | :--- |
 | 1 | [IsEmpty](#isempty) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{B}$ | - |
-| 2 | [GetLength](#getlength) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{N}_0$ | GetLength |
-| 3 | [AreEqual](#areequal) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma^{*}$ | $\mathbb{B}$ | - |
-| 4 | [AreDecimalDigits](#aredecimaldigits) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{B}$ | - |
-| 5 | [Contains](#contains) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma$ | $\mathbb{B}$ | - |
-| 6 | [ToInteger](#tointeger) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{Z}$ | - |
-| 7 | [IsPalindrome](#ispalindrome) | Consulta | Libre opción | $\Sigma^{*}$ | $\mathbb{B}$ | AreEqual, Reverse, GetLength |
-| 8 | [Concatenate](#concatenate) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \Sigma^{*}$ | $\Sigma^{*}$ | - |
-| 9 | [Power](#power) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \mathbb{N}_0$ | $\Sigma^{*}$ | Concatenate |
-| 10 | [Reverse](#reverse) | Creación o mutación | Crédito extra & Libre opción | $\Sigma^{*}$ | $\Sigma^{*}$ | Concatenate |
+| 2 | [GetLength](#getlength) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{N}_0$ | IsEmpty, GetLength |
+| 3 | [AreEqual](#areequal) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma^{*}$ | $\mathbb{B}$ | IsEmpty |
+| 4 | [AreDecimalDigits](#aredecimaldigits) | Consulta | Obligatoria | $\Sigma^{*}$ | $\mathbb{B}$ | IsEmpty |
+| 5 | [Contains](#contains) | Consulta | Obligatoria | $\Sigma^{*} \times \Sigma$ | $\mathbb{B}$ | IsEmpty |
+| 6 | [ToInteger](#tointeger) | Consulta | Obligatoria | $\Sigma_d^{*} \setminus \{\varepsilon\}$ | $\mathbb{N}_0$ | AreDecimalDigits |
+| 7 | [IsPalindrome](#ispalindrome) | Consulta | Libre opción | $\Sigma^{*}$ | $\mathbb{B}$ | GetLength |
+| 8 | [Concatenate](#concatenate) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \Sigma^{*}$ | $\Sigma^{*}$ | GetLength |
+| 9 | [Power](#power) | Creación o mutación | Crédito extra | $\Sigma^{*} \times \mathbb{N}_0$ | $\Sigma^{*}$ | IsEmpty, GetLength |
+| 10 | [Reverse](#reverse) | Creación o mutación | Crédito extra & Libre opción | $\Sigma^{*}$ | $\Sigma^{*}$ | GetLength |
 
 ## Diagrama de dependencias
 
 Las flechas indican **"dependencia"**: si $A \to B$, entonces $A$ necesita a $B$ en su definición.
 
 ```mermaid
-flowchart TD
-  ToInteger --> GetLength
-  IsPalindrome --> GetLength
+  flowchart TB
 
-  Power --> Concatenate
-  Reverse --> Concatenate
+    IsEmpty
 
-  IsPalindrome  --> Reverse
-  IsPalindrome  --> AreEqual
+    AreEqual
+    AreDecimalDigits
+    Contains
+    GetLength
+
+    ToInteger
+    IsPalindrome
+    Concatenate
+    Power
+    Reverse
+
+    AreEqual --> IsEmpty
+    AreDecimalDigits --> IsEmpty
+    Contains --> IsEmpty
+    GetLength --> IsEmpty
+
+    ToInteger --> AreDecimalDigits
+
+    IsPalindrome --> GetLength
+    Concatenate --> GetLength
+    Power --> GetLength
+    Power --> IsEmpty
+    Reverse --> GetLength
 ```
 
-> **Nota :** Las funciones sin aristas entrantes — `IsEmpty`, `AreEqual`, `AreDecimalDigits`, `Contains`, `GetLength`, `Concatenate` — las podemos denominar como **primitivas** porque no reutilizan ninguna otra función.
+> **Nota :** En este grafo, IsEmpty es el único nodo sin dependencias. Por este motivo, puede considerarse la función primitiva sobre la cual se construyen directa o indirectamente las demás funciones del módulo.
 
 ---
 
@@ -69,7 +87,7 @@ flowchart TD
 
 **Definición:** $\text{IsEmpty}: \Sigma^{*} \to \mathbb{B}$
 
-**Descripción:** Devuelve $\mathbf{true}$ si y solo si la cadena no contiene ningún símbolo.
+**Descripción:** Devuelve $\mathbf{true}$ si y solo si la cadena no contiene ningún caracter.
 
 $$\text{IsEmpty}(s) =
   \begin{cases}
@@ -78,6 +96,7 @@ $$\text{IsEmpty}(s) =
   \end{cases}$$
 
 > **Nota: Solo existe un caso base.** Esta función no es recursiva: solo distingue entre la cadena vacía y cualquier otra cadena.
+En caso de que la función reciba un elemento que **no** pertenezca al dominio, **cortará el ciclo de ejecución del programa.**
 
 **Ejemplos:**
 
@@ -85,14 +104,14 @@ $$\text{IsEmpty}(s) =
 | :--- | :---: |
 | $\text{IsEmpty}(\varepsilon)$ | $\mathbf{true}$ |
 | $\text{IsEmpty}(\mathtt{abc})$ | $\mathbf{false}$ |
-
+| $\text{IsEmpty}(\mathtt{NULL})$ | $\mathbf{No Definida}$ |
 ---
 
 ## GetLength
 
 **Definición:** $\text{GetLength}: \Sigma^{*} \to \mathbb{N}_0$
 
-**Descripción:** Cuenta los símbolos de la cadena recorriéndola de izquierda a derecha; suma 1 por cada símbolo encontrado.
+**Descripción:** Cuenta los caracteres de la cadena recorriéndola de izquierda a derecha; suma 1 por cada caracter encontrado.
 
 $$\text{GetLength}(s) =
   \begin{cases}
@@ -117,7 +136,7 @@ GetLength("abc")
 
 **Definición:** $\text{AreEqual}: \Sigma^{*} \times \Sigma^{*} \to \mathbb{B}$
 
-**Descripción:** Compara dos cadenas símbolo a símbolo. Devuelve $\mathbf{true}$, solo si, tienen la misma longitud y cada par de símbolos en la misma posición es idéntico.
+**Descripción:** Compara dos cadenas caracter a caracter. Devuelve $\mathbf{true}$, solo si, tienen la misma longitud y cada par de caracteres en la misma posición es idéntico.
 
 $$\text{AreEqual}(s, p) =
   \begin{cases}
@@ -153,15 +172,35 @@ AreEqual("abc", "abd")
 
 **Definición:** $\text{AreDecimalDigits}: \Sigma^{*} \to \mathbb{B}$
 
-**Descripción:** Verifica que **todos** los símbolos de la cadena sean dígitos decimales. Una cadena vacía satisface trivialmente esta condición.
+**Descripción:** Verifica que todos los caracteres de la cadena pertenezcan al conjunto de dígitos decimales.
 
-$$\text{AreDecimalDigits}(s) =
-  \begin{cases}
-    \mathbf{true} & \text{si } s = \varepsilon \\
-    (h \in \Sigma_{d}) \wedge \text{AreDecimalDigits}(t) & \text{si } s = h \cdot t
-  \end{cases}$$
+$$
+\text{AreDecimalDigits}(s)=
+\begin{cases}
+\mathbf{true} & \text{si } s=\varepsilon \\
+(h \in \Sigma_d)\wedge\text{AreDecimalDigits}(t) & \text{si } s=h\cdot t
+\end{cases}
+$$
 
-> **Verdad vacua / Caso trivial :** El caso $s = \varepsilon$ devuelve $\mathbf{true}$ porque no existe ningún símbolo que viole la condición, por eso decimos que una cadena vacía satisface trivialmente esta condición.
+donde
+
+$$
+\Sigma_d=\{\mathtt{0},\mathtt{1},\ldots,\mathtt{9}\}.
+$$
+
+> **Interpretación:** La función decide si la cadena pertenece al lenguaje $\Sigma_d^{*}$.
+
+> **Verdad vacua / Caso trivial:** El caso $s=\varepsilon$ devuelve $\mathbf{true}$ porque no existe ningún caracter que viole la condición.
+
+**Traza de ejecución** para $\mathtt{12a4}$:
+
+```
+AreDecimalDigits("12a4")
+  '1' ∈ Σd → true ∧ AreDecimalDigits("2a4")
+  '2' ∈ Σd → true ∧ AreDecimalDigits("a4")
+  'a' ∉ Σd → false
+  = false
+```
 
 **Ejemplos:**
 
@@ -177,7 +216,7 @@ $$\text{AreDecimalDigits}(s) =
 
 **Definición:** $\text{Contains}: \Sigma^{*} \times \Sigma \to \mathbb{B}$
 
-**Descripción:** Indica si el carácter $c$ aparece al menos una vez en la cadena.
+**Descripción:** Determina si existe alguna posición de la cadena cuyo caracter sea igual a $c$.
 
 $$\text{Contains}(s, c) =
   \begin{cases}
@@ -186,6 +225,30 @@ $$\text{Contains}(s, c) =
   \end{cases}$$
 
 > **Cortocircuito.** Gracias al operador $\vee$, cuando encuentra la primera ocurrencia de $c$, la recursión se detiene sin recorrer el resto de la cadena.
+
+**Traza de ejecución** para $\text{Contains}(\mathtt{abc},\mathtt{b})$:
+
+```text
+Contains("abc", 'b')
+
+'a' == 'b' → false ∨ Contains("bc", 'b')
+'b' == 'b' → true
+
+Resultado: true
+```
+
+**Traza de ejecución** para $\text{Contains}(\mathtt{abc},\mathtt{d})$:
+
+```text
+Contains("abc", 'd')
+
+'a' == 'd' → false ∨ Contains("bc", 'd')
+'b' == 'd' → false ∨ Contains("c", 'd')
+'c' == 'd' → false ∨ Contains("", 'd')
+ε → false
+
+Resultado: false
+```
 
 **Ejemplos:**
 
@@ -198,32 +261,53 @@ $$\text{Contains}(s, c) =
 
 ## ToInteger
 
-**Definición:** $\text{ToInteger}: \Sigma^{*} \to \mathbb{Z}$
+> **Nota:** Esta función pertenece al módulo **Conversion**, no al módulo **Strings**. Se incluye aquí únicamente por depender de una representación textual de un número entero.
 
-**Descripción:** Interpreta una cadena de dígitos decimales como un número entero no negativo, aplicando el sistema posicional con base 10.
+**Definición:** $\text{ToInteger}: \Sigma_d^{*} \setminus \{\varepsilon\} \to \mathbb{N}_0$
 
-Sea $\delta : \Sigma_{d} \to \mathbb{N}_0$ la función que convierte cada dígito en su valor numérico ($\delta(\mathtt{7}) = 7$, etc.).
+**Descripción:** Convierte una cadena compuesta exclusivamente por dígitos decimales en el número natural que representa.
 
-$$\text{ToInteger}(s) =
-  \begin{cases}
-    0 & \text{si } s = \varepsilon \\
-    \delta(h) \cdot 10^{\text{GetLength}(t)} + \text{ToInteger}(t) & \text{si } s = h \cdot t
-  \end{cases}$$
+$$
+\text{ToInteger}(s)
+=
+\sum_{i=0}^{|s|-1}
+(s[i]-\mathtt{'0'})
+\cdot
+10^{|s|-1-i}
+$$
 
-> **Nota:** Esta función tiene comportamiento **indefinido** si la cadena contiene símbolos fuera de $\Sigma_{d}$.
+donde
 
-**Traza de ejecución** para $\mathtt{123}$:
+$$
+\Sigma_d=\{\mathtt{0},\mathtt{1},\ldots,\mathtt{9}\}.
+$$
 
+> **Precondición:** La cadena no debe estar vacía y todos sus caracteres deben pertenecer a $\Sigma_d$.
+
+> **Implementación:** La función recorre la cadena de izquierda a derecha acumulando el resultado parcial. En cada paso desplaza el valor actual una posición decimal hacia la izquierda (multiplicando por 10) y agrega el valor numérico del nuevo dígito.
+
+**Traza de ejecución** para $\mathtt{142}$:
+
+```text
+ToInteger("142")
+
+result = 0
+
+result = 0 * 10 + 1 = 1
+result = 1 * 10 + 4 = 14
+result = 14 * 10 + 2 = 142
+
+Resultado: 142
 ```
-ToInteger("123")
-  = δ('1') · 10^GetLength("23") + ToInteger("23")
-  = 1 · 10² + ToInteger("23")
-  = 100 + δ('2') · 10^GetLength("3") + ToInteger("3")
-  = 100 + 2 · 10¹ + ToInteger("3")
-  = 100 + 20 + δ('3') · 10^GetLength("") + ToInteger("")
-  = 100 + 20 + 3 · 10⁰ + 0
-  = 123
-```
+
+**Ejemplos:**
+
+| Llamada | Resultado |
+| :--- | :---: |
+| $\text{ToInteger}(\mathtt{0})$ | $0$ |
+| $\text{ToInteger}(\mathtt{7})$ | $7$ |
+| $\text{ToInteger}(\mathtt{142})$ | $142$ |
+| $\text{ToInteger}(\mathtt{12345})$ | $12345$ |
 
 ---
 
@@ -231,32 +315,27 @@ ToInteger("123")
 
 **Definición:** $\text{IsPalindrome}: \Sigma^{*} \to \mathbb{B}$
 
-**Descripción:** Determina si la cadena es un palíndromo, es decir, si se lee igual de izquierda a derecha que de derecha a izquierda.
+**Descripción:** Determina si la cadena se lee igual de izquierda a derecha que de derecha a izquierda.
 
-**Definición utilizando funciones independientes** :
+$$
+\text{IsPalindrome}(s)=
+\begin{cases}
+\mathbf{true} & \text{si } \forall i \in \{0,\ldots,\lfloor \frac{|s|}{2}\rfloor-1\} : s[i]=s[|s|-1-i] \\
+\mathbf{false} & \text{en otro caso}
+\end{cases}
+$$
 
-$$\text{IsPalindrome}(s) = \text{AreEqual}(s,\ \text{Reverse}(s))$$
-
-**Definición recursiva**:
-
-$$\text{IsPalindrome}(s) =
-  \begin{cases}
-    \mathbf{true}  & \text{si } s = \varepsilon \\
-    \mathbf{true}  & \text{si } \text{GetLength}(s) = 1 \\
-    \text{IsPalindrome}(t_{\text{medio}}) & \text{si } s = h \cdot t_{\text{medio}} \cdot u \wedge h = u \\
-    \mathbf{false} & \text{en otro caso}
-  \end{cases}$$
-
-> **Posee 2 casos base:** La cadena vacía y la cadena de un solo símbolo son palíndromos triviales. El paso recursivo compara el primer y el último carácter ($h$ y $u$) y, si coinciden, verifica si el interior $t_{\text{medio}}$ también lo es.
+> **Implementación:** La función calcula la longitud de la cadena y compara pares de caracteres simétricos respecto del centro. Si encuentra una diferencia, finaliza inmediatamente devolviendo $\mathbf{false}$.
 
 **Traza de ejecución** para $\mathtt{radar}$:
 
-```
+```text
 IsPalindrome("radar")
-  h='r', u='r' → iguales → IsPalindrome("ada")
-  h='a', u='a' → iguales → IsPalindrome("d")
-  longitud 1 → true
-  = true
+
+s[0] == s[4] → 'r' == 'r'
+s[1] == s[3] → 'a' == 'a'
+
+Resultado: true
 ```
 
 **Ejemplos:**
@@ -273,7 +352,7 @@ IsPalindrome("radar")
 
 **Definición:** $\text{Concatenate}: \Sigma^{*} \times \Sigma^{*} \to \Sigma^{*}$
 
-**Descripción:** Une dos cadenas en una sola copiando los símbolos de $s_{1}$ delante de $s_{2}$, sin modificar ninguna de las dos.
+**Descripción:** Une dos cadenas en una sola copiando los caracteres de $s_{1}$ delante de $s_{2}$, sin modificar ninguna de las dos.
 
 $$\text{Concatenate}(s_{1}, s_{2}) =
   \begin{cases}
@@ -327,25 +406,32 @@ Power("ab", 3)
 
 **Definición:** $\text{Reverse}: \Sigma^{*} \to \Sigma^{*}$
 
-**Descripción:** Devuelve una nueva cadena con los símbolos en orden inverso.
+**Descripción:** Devuelve una nueva cadena cuyos caracteres aparecen en orden inverso respecto de la cadena original.
 
-$$\text{Reverse}(s) =
-  \begin{cases}
-    \varepsilon & \text{si } s = \varepsilon \\
-    \text{Concatenate}(\text{Reverse}(t),\ h) & \text{si } s = h \cdot t
-  \end{cases}$$
+$$
+\text{Reverse}(s)[i] = s[|s|-1-i]
+\qquad
+\forall i \in \{0,\ldots,|s|-1\}
+$$
 
-> **Nota: esta función posee un patrón de acumulación al final.** En cada paso recursivo, la cabeza $h$ se mueve al final de la cadena revertida. Esto es equivalente a apilar todos los caracteres y luego desapilarlos.
+> **Implementación:** La función calcula la longitud de la cadena y luego recorre los caracteres desde el final hacia el inicio, copiándolos en una nueva cadena.
 
 **Traza de ejecución** para $\mathtt{abc}$:
 
-```
+```text
 Reverse("abc")
-  = Concatenate(Reverse("bc"), 'a')
-  = Concatenate(Concatenate(Reverse("c"), 'b'), 'a')
-  = Concatenate(Concatenate(Concatenate(Reverse(""), 'c'), 'b'), 'a')
-  = Concatenate(Concatenate(Concatenate("", 'c'), 'b'), 'a')
-  = Concatenate(Concatenate("c", 'b'), 'a')
-  = Concatenate("cb", 'a')
-  = "cba"
+
+resultado[0] = 'c'
+resultado[1] = 'b'
+resultado[2] = 'a'
+
+Resultado: "cba"
 ```
+
+**Ejemplos:**
+
+| Llamada | Resultado |
+| :--- | :---: |
+| $\text{Reverse}(\varepsilon)$ | $\varepsilon$ |
+| $\text{Reverse}(\mathtt{abc})$ | $\mathtt{cba}$ |
+| $\text{Reverse}(\mathtt{radar})$ | $\mathtt{radar}$ |

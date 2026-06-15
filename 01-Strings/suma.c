@@ -1,11 +1,11 @@
 #include <stdio.h>
-#include "Strings.h"
+#include "Conversion.h"
 
 int main(int, char *argv[]) {
-    long suma = 0;
+    int suma = 0;
     for (char **arg = argv + 1; *arg != NULL; arg++) {     
         const char *numero = *arg;
-        long signo = 1;
+        int signo = 1;
 
         //Manejamos el signo
         if(*numero == '-'){
@@ -20,7 +20,7 @@ int main(int, char *argv[]) {
             suma += signo * ToInteger(numero);
         }
     }
-    printf("%ld\n", suma);
+    printf("%d\n", suma);
 
     return 0;
 }
