@@ -1,6 +1,8 @@
 CC = gcc
 CFLAGS = -std=c23 -Wall -Wextra -g
 
+all: SumarBytes SumarDecimalGetNextDecimal
+
 SumarBytes: SumarBytes.o
 	$(CC) $(CFLAGS) SumarBytes.o -o SumarBytes
 
@@ -18,6 +20,12 @@ SumarDecimalesScanf: SumarDecimalesScanf.o
 
 SumarDecimalesScanf.o: SumarDecimalesScanf.c
 	$(CC) $(CFLAGS) -c SumarDecimalesScanf.c - SumarDecimalesScanf.o
+
+SumarDecimalGetNextDecimal: SumarDecimalGetNextDecimal.o
+	$(CC) $(CFLAGS) SumarDecimalGetNextDecimal.o -o SumarDecimalGetNextDecimal
+
+SumarDecimalGetNextDecimal.o: SumarDecimalGetNextDecimal.c
+	$(CC) $(CFLAGS) -c SumarDecimalGetNextDecimal.c -o SumarDecimalGetNextDecimal.o
 
 
 .PHONY: clean
