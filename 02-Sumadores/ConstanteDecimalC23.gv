@@ -4,7 +4,6 @@ digraph G {
     STATE_START -> STATE_DIGITS [label = "0-9"];
     
     STATE_SIGN -> STATE_DIGITS [label = "0-9"];
-    STATE_SIGN -> STATE_FAIL [label = "ε"];
 
     STATE_DIGITS -> STATE_DIGITS [label = "0-9"];
     STATE_DIGITS -> STATE_SUCCESS [label = "ε"];
