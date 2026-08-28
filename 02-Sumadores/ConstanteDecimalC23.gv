@@ -1,12 +1,13 @@
 digraph G {
-    STATE_START -> STATE_FAIL [label="ε"];
-    STATE_START -> STATE_SIGN [label = "1, -1"];
+    STATE_START -> STATE_FAIL [label="EOF, No +, -, 0-9"];
+    STATE_START -> STATE_SIGN [label = "+, -"];
     STATE_START -> STATE_DIGITS [label = "0-9"];
     
     STATE_SIGN -> STATE_DIGITS [label = "0-9"];
+    STATE_SIGN -> STATE_FAIL [label = "EOF, No 0-9"];
 
     STATE_DIGITS -> STATE_DIGITS [label = "0-9"];
-    STATE_DIGITS -> STATE_SUCCESS [label = "ε"];
+    STATE_DIGITS -> STATE_SUCCESS [label = "EOF, No 0-9"];
     
 
 }
