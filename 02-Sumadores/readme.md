@@ -98,7 +98,7 @@ El autómata se encuentra diagramado en `ConstanteDecimalC23.gv`.
 $$M = (Q, \Sigma, T, q_0, F)$$
 
 * $Q = \{\text{STATE\_START}, \text{STATE\_SIGN}, \text{STATE\_DIGITS}, \text{STATE\_SUCCESS}, \text{STATE\_FAIL}\}$
-* $\Sigma = \{+, -, 0..9\} \cup \{\text{' '}, \text{'\\t'}, \text{'\\n'}\} \cup \Sigma_{\text{otro}}$
+* $\Sigma = \{+, -, 0..9\} \cup \{\text{' '}, \text{'\t'}, \text{'\n'}\} \cup \Sigma_{\text{otro}}$
 * $q_0 = \text{STATE\_START}$
 * $F = \{\text{STATE\_SUCCESS}\}$
 
