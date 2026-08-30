@@ -1,39 +1,57 @@
 CC = gcc
 CFLAGS = -std=c23 -Wall -Wextra -g
+CPPFLAGS = -I. -ISumarXAux/PokeParser -ISumarXAux/Pokedex -ISumarXAux/PokeArithmetic
+VPATH = . SumarXAux/PokeParser SumarXAux/Pokedex SumarXAux/PokeArithmetic
 
-all: SumarBytes SumarInts SumarInt_Ns SumarDecimalesScanf SumarDecimalGetNextDecimal
+BIN_DIR := bin
+OBJ_DIR := obj
 
-SumarBytes: SumarBytes.o
-	$(CC) $(CFLAGS) SumarBytes.o -o SumarBytes
+all: $(BIN_DIR)/SumarBytes \
+     $(BIN_DIR)/SumarInts \
+     $(BIN_DIR)/SumarInt_Ns \
+     $(BIN_DIR)/SumarDecimalesScanf \
+     $(BIN_DIR)/SumarDecimalGetNextDecimal \
+     $(BIN_DIR)/SumarX
 
-SumarBytes.o: SumarBytes.c
-	$(CC) $(CFLAGS) -c SumarBytes.c -o SumarBytes.o
+$(OBJ_DIR):
+	mkdir -p $(OBJ_DIR)
 
-SumarInts: SumarInts.o
-	$(CC) $(CFLAGS) SumarInts.o -o SumarInts
+$(BIN_DIR):
+	mkdir -p $(BIN_DIR)
 
-SumarInts.o: SumarInts.c
-	$(CC) $(CFLAGS) -c SumarInts.c -o SumarInts.o
+$(OBJ_DIR)/%.o: %.c | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-SumarInt_Ns: SumarInt_Ns.o
-	$(CC) $(CFLAGS) SumarInt_Ns.o -o SumarInt_Ns
+$(BIN_DIR)/SumarBytes: $(OBJ_DIR)/SumarBytes.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
-SumarInt_Ns.o: SumarInt_Ns.c
-	$(CC) $(CFLAGS) -c SumarInt_Ns.c -o SumarInt_Ns.o
+$(BIN_DIR)/SumarInts: $(OBJ_DIR)/SumarInts.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
-SumarDecimalesScanf: SumarDecimalesScanf.o
-	$(CC) $(CFLGS) SumarDecimalesScanf.o -o SumarDecimalesScanf
+$(BIN_DIR)/SumarInt_Ns: $(OBJ_DIR)/SumarInt_Ns.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
-SumarDecimalesScanf.o: SumarDecimalesScanf.c
-	$(CC) $(CFLAGS) -c SumarDecimalesScanf.c - SumarDecimalesScanf.o
+$(BIN_DIR)/SumarDecimalesScanf: $(OBJ_DIR)/SumarDecimalesScanf.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
-SumarDecimalGetNextDecimal: SumarDecimalGetNextDecimal.o
-	$(CC) $(CFLAGS) SumarDecimalGetNextDecimal.o -o SumarDecimalGetNextDecimal
+$(BIN_DIR)/SumarDecimalGetNextDecimal: $(OBJ_DIR)/SumarDecimalGetNextDecimal.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $^ -o $@
 
-SumarDecimalGetNextDecimal.o: SumarDecimalGetNextDecimal.c
-	$(CC) $(CFLAGS) -c SumarDecimalGetNextDecimal.c -o SumarDecimalGetNextDecimal.o
+$(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $^ -o $@
 
+$(OBJ_DIR)/PokeParser.o: PokeParser.c PokeParser.h ParserErrors.h Pokedex.h | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/PokeArithmetic.o: PokeArithmetic.c PokeArithmetic.h Pokedex.h | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/Pokedex.o: Pokedex.c Pokedex.h | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+$(OBJ_DIR)/SumarX.o: SumarX.c PokeArithmetic.h PokeParser.h Pokedex.h | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
-clean: 
-	rm -f *.o *.exe
+clean:
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
