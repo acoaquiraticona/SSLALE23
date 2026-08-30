@@ -28,7 +28,7 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                 } else if (caracter == '+' || caracter == '-') {
                     signo = (caracter == '-') ? -1 : 1;
                     estado_actual = STATE_SIGN;
-                } else if (caracter >= '0' && caracter <= '9') { // Comprobación de rango manual
+                } else if (caracter >= '1' && caracter <= '9') { // Comprobación de rango manual
                     valor_acumulado = caracter - '0';
                     estado_actual = STATE_DIGITS;
                 } else {
@@ -38,7 +38,7 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                 break;
 
             case STATE_SIGN:
-                if (caracter >= '0' && caracter <= '9') {
+                if (caracter >= '1' && caracter <= '9') {
                     valor_acumulado = caracter - '0';
                     estado_actual = STATE_DIGITS;
                 } else if (caracter == EOF) {

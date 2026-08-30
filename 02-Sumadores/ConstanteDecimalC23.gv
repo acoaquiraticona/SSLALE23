@@ -1,13 +1,18 @@
 digraph G {
-    STATE_START -> STATE_FAIL [label="EOF, No +, -, 0-9"];
+    node [shape = doublecircle]; STATE_SUCCESS; STATE_FAIL;
+    node [shape = circle];
+
+    STATE_START -> STATE_START [label = "isspace"];
     STATE_START -> STATE_SIGN [label = "+, -"];
-    STATE_START -> STATE_DIGITS [label = "0-9"];
+    STATE_START -> STATE_DIGITS [label = "1-9"];
+    STATE_START -> STATE_FAIL [label="EOF, No +, -, 0-9"];
     
-    STATE_SIGN -> STATE_DIGITS [label = "0-9"];
-    STATE_SIGN -> STATE_FAIL [label = "EOF, No 0-9"];
+    
+    STATE_SIGN -> STATE_DIGITS [label = "1-9"];
+    STATE_SIGN -> STATE_FAIL [label = "EOF, No 0-9 [ungetc]"];
 
     STATE_DIGITS -> STATE_DIGITS [label = "0-9"];
-    STATE_DIGITS -> STATE_SUCCESS [label = "EOF, No 0-9"];
+    STATE_DIGITS -> STATE_SUCCESS [label = "EOF, No 0-9 [ungetc]"];
     
 
 }
