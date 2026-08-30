@@ -1,0 +1,89 @@
+digraph PokemonLanguage {
+    rankdir=LR;
+
+    graph [
+        label="Autómata Finito Determinista (AFD) — Lenguaje SumarX de Pokémon",
+        labelloc="t",
+        fontsize=18
+    ];
+
+    node [
+        shape=circle,
+        fontsize=12
+    ];
+
+    edge [
+        fontsize=10
+    ];
+
+    /* ---------------------------------------------------------------------- */
+    /* Estados                                                                 */
+    /* ---------------------------------------------------------------------- */
+
+    q0 [
+        label="q0\nInicio"
+    ];
+
+    q1 [
+        label="q1\nEsperando + o fin",
+        shape=doublecircle,
+        style=filled,
+        fillcolor="#d5f5e3"
+    ];
+
+    q2 [
+        label="q2\nEsperando Pokémon"
+    ];
+
+    qE [
+        label="qE\nError",
+        shape=circle,
+        style=filled,
+        fillcolor="#fadbd8"
+    ];
+
+
+    /* ---------------------------------------------------------------------- */
+    /* Estado inicial                                                         */
+    /* ---------------------------------------------------------------------- */
+
+    inicio [
+        shape=point,
+        label=""
+    ];
+
+    inicio -> q0;
+
+
+    /* ---------------------------------------------------------------------- */
+    /* Transiciones                                                           */
+    /* ---------------------------------------------------------------------- */
+
+    q0 -> q1 [label="P"];
+    q1 -> q2 [label="+"];
+    q2 -> q1 [label="P"];
+
+
+    /* ---------------------------------------------------------------------- */
+    /* Errores                                                                */
+    /* ---------------------------------------------------------------------- */
+
+    q0 -> qE [label="+"];
+    q2 -> qE [label="+"];
+    q1 -> qE [label="P"];
+
+    /*
+     * Estado de error: sumidero (trap state).
+     * δ(qE, x) = qE para todo x ∈ Σ.
+     */
+    qE -> qE [label="P, +, espacio"];
+
+
+    /* ---------------------------------------------------------------------- */
+    /* Espacios                                                               */
+    /* ---------------------------------------------------------------------- */
+
+    q0 -> q0 [label="espacio"];
+    q1 -> q1 [label="espacio"];
+    q2 -> q2 [label="espacio"];
+}
