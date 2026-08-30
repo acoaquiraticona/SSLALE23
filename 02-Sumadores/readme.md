@@ -98,7 +98,7 @@ $$M = (Q, \Sigma, T, q_0, F)$$
 
 donde
 * **$Q$ (Estados):** {`STATE_START`, `STATE_SIGN`, `STATE_DIGITS`, `STATE_SUCCESS`, `STATE_FAIL`}
-* **$\Sigma$ (Alfabeto):** $\{+, -\} \cup \{0, 1, \dots, 9\} \cup \{\text{' '}, \text{'\t'}, \text{'\n'}\} \cup \Sigma_{\text{otro}}$
+* **$\Sigma$ (Alfabeto):** $\{+, -\} \cup \{0, 1, \dots, 9\} \cup \Sigma_{\text{blanco}} \cup \Sigma_{\text{otro}}$
 * **$q_0$ (Estado inicial):** `STATE_START`
 * **$F$ (Estados de aceptación):** {`STATE_SUCCESS`}
 
