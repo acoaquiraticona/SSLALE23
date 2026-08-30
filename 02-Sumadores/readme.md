@@ -10,22 +10,21 @@ Siguiendo la especificación estricta de Kernighan & Ritchie (K&R §A2.5.1), una
 #### i. Por extensión (operaciones de strings y conjuntos)
 
 * $\Sigma_{\text{signo}} = \{+, -\}$
-* $\Sigma_{\text{no\_cero}} = \{1, 2, 3, 4, 5, 6, 7, 8, 9\}$
-* $\Sigma_{\text{dígito}} = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}$
+* $\Sigma_{\text{nocero}} = \{1, 2, 3, 4, 5, 6, 7, 8, 9\}$
+* $\Sigma_{\text{digito}} = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}$
 
 Construcción de los lenguajes:
 * $L_{\text{signo}} = \Sigma_{\text{signo}} \cup \{\varepsilon\} = \{+, -, \varepsilon\}$
-* $L_{\text{no\_cero}} = \Sigma_{\text{no\_cero}} = \{1, 2, 3, 4, 5, 6, 7, 8, 9\}$
-* $L_{\text{resto}} = (\Sigma_{\text{dígito}})^* = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}^*$
+* $L_{\text{nocero}} = \Sigma_{\text{nocero}} = \{1, 2, 3, 4, 5, 6, 7, 8, 9\}$
+* $L_{\text{resto}} = (\Sigma_{\text{digito}})^* = \{0, 1, 2, 3, 4, 5, 6, 7, 8, 9\}^*$
 
-$$L_{\text{decimal}} = L_{\text{signo}} \cdot L_{\text{no\_cero}} \cdot L_{\text{resto}}$$
+$$L_{\text{decimal}} = L_{\text{signo}} \cdot L_{\text{nocero}} \cdot L_{\text{resto}}$$
+
 $$L_{\text{decimal}} = \{+, -, \varepsilon\} \cdot \{1, \dots, 9\} \cdot \{0, \dots, 9\}^*$$
 
-> **Cómo lo razonamos:** Concatenamos tres conjuntos: el signo opcional ($\varepsilon$ si no viene signo), el primer dígito que obligatoriamente pertenece a $\Sigma_{\text{no\_cero}}$ para respetar la definición de C, y el resto de la cadena generado mediante la clausura de Kleene ($^*$) sobre todos los dígitos posibles.
+> **Cómo lo razonamos:** Concatenamos tres conjuntos: el signo opcional (\\(\varepsilon\\) si no viene signo), el primer dígito que obligatoriamente pertenece a \\(\Sigma_{\text{nocero}}\\) para respetar la definición de C, y el resto de la cadena generado mediante la clausura de Kleene (\\(^*\\)) sobre todos los dígitos posibles.
 >
 > **Texto de apoyo:** Muchnik Vol. 1, Capítulo 1 (*Operaciones de unión, concatenación y clausura*) y K&R §A2.5.1.
-
----
 
 #### ii. Con Expresiones Regulares teóricas (Kleene)
 
@@ -97,10 +96,11 @@ El autómata se encuentra diagramado en `ConstanteDecimalC23.gv`.
 ##### Definición formal como 5-upla:
 $$M = (Q, \Sigma, T, q_0, F)$$
 
-* $Q = \{\text{STATE\_START}, \text{STATE\_SIGN}, \text{STATE\_DIGITS}, \text{STATE\_SUCCESS}, \text{STATE\_FAIL}\}$
-* $\Sigma = \{+, -, 0..9\} \cup \{\text{' '}, \text{'\t'}, \text{'\n'}\} \cup \Sigma_{\text{otro}}$
-* $q_0 = \text{STATE\_START}$
-* $F = \{\text{STATE\_SUCCESS}\}$
+donde
+* **$Q$ (Estados):** {`STATE_START`, `STATE_SIGN`, `STATE_DIGITS`, `STATE_SUCCESS`, `STATE_FAIL`}
+* **$\Sigma$ (Alfabeto):** $\{+, -\} \cup \{0, 1, \dots, 9\} \cup \{\text{' '}, \text{'\t'}, \text{'\n'}\} \cup \Sigma_{\text{otro}}$
+* **$q_0$ (Estado inicial):** `STATE_START`
+* **$F$ (Estados de aceptación):** {`STATE_SUCCESS`}
 
 ##### Tabla de Transiciones (TT):
 
