@@ -1,7 +1,7 @@
-    
-   #include <stdio.h>
-   #include <float.h>
-   int main (void) {
+#include <stdio.h>
+#include <float.h>
+
+int main (void) {
     double suma = 0;
     for (double valor; scanf("%lf", &valor) == 1;) {
         {
@@ -11,7 +11,7 @@
                     break;
                 }
         }
-        suma += valor;
-        printf("Suma parcial (decimales): %lf\n", suma); }
-        return 0;
-    }
+    suma += valor;
+    printf("Suma parcial (decimales): %lf\n", suma); }
+    return 0;
+}

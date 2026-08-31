@@ -1,6 +1,6 @@
-# 📘 Trabajo Práctico N°1 — Strings
+# 📘 Repo Sintaxis y Semántica de los Lenguajes - Grupo 9
 
-> **Sintaxis y Semántica de los Lenguajes**
+> **Trabajos Prácticos N°1 y N°2**
 >
 > **Ingeniería en Sistemas de la Información** · **Universidad Tecnológica Nacional - Facultad Regional Buenos Aires**
 
@@ -22,42 +22,73 @@
 
 | N° | Nombre Completo | Legajo |
 | :--- | :------- | :----- |
-| 1 | Eva Olave | 152.952-3 |
-| 2 | Alejandro Coaquira Ticona | 222.229-2 |
-| 3 | Joaquín Benicio Domínguez | 233.839-7 |
-| 4 | Juan Gabriel Laterza Rosa | 163.171-8 |
-| 5 | Julian Clemente | 222.226-7 |
-| 6 | Thiago Elias Silva | 222.709-5 |
-| 7 | Thiago Gabriel Salles | 234.176-1 |
-| 8 | Victor Fernández | 174.545-1 |
+| 1 | Alejandro Coaquira Ticona | 222.229-2 |
+| 2 | Joaquín Benicio Domínguez | 233.839-7 |
+| 3 | Juan Gabriel Laterza Rosa | 163.171-8 |
+| 4 | Julian Clemente | 222.226-7 |
+| 5 | Thiago Gabriel Salles | 234.176-1 |
+| 6 | Victor Fernández | 174.545-1 |
 
 ---
 
 ## 📂 Estructura del Repositorio
 
-```01-Strings/
-├── README.md               # Este archivo — descripción general del trabajo
-├── AnálisisComparativo.md  # Análisis comparativo entre lenguaje C y Python
-├── String.md               # Documentación del módulo String
-├── Makefile                # Reglas de compilación y ejecución
-│
-├── 🔷 Módulo String
-│   ├── String.h            # Interfaz pública del TAD String
-│   ├── String.c            # Implementación del TAD String
-│   └── StringTest.c        # Pruebas unitarias del módulo String
-│
-├── 🔷 Módulo Conversión
-│   ├── Conversion.h        # Interfaz del módulo de conversión
-│   ├── Conversion.c        # Implementación del módulo de conversión
-│   └── ConversionTest.c    # Pruebas unitarias del módulo Conversión
-│
-└── 🔷 Programas con argumentos de línea de comando
-    ├── enlineas.c          # Muestra cada argumento en una línea propia
-    ├── longitudes.c        # Longitud de cada argumento
-    ├── mayorlongitud.c     # Argumento con mayor longitud
-    ├── todosiguales.c      # Uno si son todos los argumentos iguales, si no, cero
-    └── suma.c              # Suma de todos los argumentos que son enteros en base 10. Variación: signo opcional
+```text
+26-052-09/
+├── README.md                               # Descripción general del proyecto
+├── 26-052-09.code-workspace                # Configuración del workspace
+├── 01-Strings/                             # Trabajo Práctico N°1: Strings
+│   ├── AnálisisComparativo.md              # Comparación entre C y Python
+│   ├── Conversion.c                        # Implementación del módulo de conversión
+│   ├── Conversion.h                        # Interfaz del módulo de conversión
+│   ├── ConversionTest.c                    # Pruebas del módulo de conversión
+│   ├── enlineas.c                          # Muestra cada argumento por línea
+│   ├── longitudes.c                        # Longitud de cada argumento
+│   ├── mayorlongitud.c                     # Recupera el argumento de mayor longitud
+│   ├── Makefile                            # Compilación y ejecución del TP1
+│   ├── Strings.c                           # Implementación del TAD String
+│   ├── Strings.h                           # Interfaz del TAD String
+│   ├── Strings.md                          # Documentación del módulo String
+│   ├── StringsTest.c                       # Pruebas del módulo String
+│   ├── suma.c                              # Suma de enteros presentes en argumentos
+│   └── todosiguales.c                      # Verifica si todos los argumentos son iguales
+├── 02-Sumadores/                           # Trabajo Práctico N°2: Sumadores
+│   ├── Makefile                            # Compilación y ejecución del TP2
+│   ├── readme.md                           # Resumen del ejercicio
+│   ├── SumarBytes.c                        # Suma de bytes
+│   ├── SumarDecimalesScanf.c               # Sumador con scanf
+│   ├── SumarDecimalGetNextDecimal.c        # Variante de lectura decimal
+│   ├── SumarInts.c                         # Suma de enteros
+│   ├── SumarInt_Ns.c                       # Versión con enteros sin signo
+│   ├── SumarX.c                            # Solución principal del sumador X
+│   ├── ConstanteDecimalC23.gv              # Diagrama relacionado con constante decimal
+│   ├── ConstanteDecimalX.gv                # Diagrama relacionado con constante decimal X
+│   ├── DefinicionSumarX/                   # Documentación y diagramas de SumarX
+│   │   ├── DefinicionSumarX.md             # Definición del sumador X
+│   │   ├── SumarX.gv                       # Diagrama de SumarX
+│   │   └── SumaXME.md                      # Material adicional del ejercicio
+│   ├── SumarXAux/                          # Módulos auxiliares para SumarX
+│   │   ├── PokeArithmetic/                 # Lógica aritmética y pruebas
+│   │   │   ├── PokeArithmetic.c
+│   │   │   └── PokeArithmetic.h
+│   │   ├── Pokedex/                        # Módulo de pokédex auxiliar
+│   │   │   ├── Pokedex.c
+│   │   │   └── Pokedex.h
+│   │   └── PokeParser/                     # Parser de datos auxiliar
+│   │       ├── ParserErrors.h
+│   │       ├── PokeParser.c
+│   │       └── PokeParser.h
+│   └── Tests/                              # Pruebas del TP2
+│       └── PokeTests/                      # Casos de prueba del módulo Poke
+│           ├── DefinicionPokeTests.md
+│           ├── TestPokeAdder.c
+│           ├── TestPokeArithmetic.c
+│           ├── TestPokeIntegracion.c
+│           └── TestPokeParser.c
+└──
 ```
+
+> Este repo agrupa los dos trabajos prácticos que vimos hasta ahora: el TP de cadenas y el TP de sumadores, cada uno con su propia estructura y archivos de documentación y pruebas.
 
 ---
 
@@ -101,8 +132,9 @@ make clean
 
 ## 📄 Documentación
 
-- [`String.md`](./String.md) — Descripción detallada de la interfaz del TAD String: funciones, parámetros, valores de retorno y ejemplos de uso.  
-- [`AnálisisComparativo.md`](./AnálisisComparativo.md) — Comparación entre Lenguaje C y Python.
+- [`01-Strings/Strings.md`](./01-Strings/Strings.md) — Descripción detallada de la interfaz del TAD String: funciones, parámetros, valores de retorno y ejemplos de uso.  
+- [`01-Strings/AnálisisComparativo.md`](./01-Strings/AnálisisComparativo.md) — Comparación entre Lenguaje C y Python.
+- [`02-Sumadores/readme.md`](./02-Sumadores/readme.md) — Resumen y especificaciones del trabajo práctico de sumadores.
 
 ---
 

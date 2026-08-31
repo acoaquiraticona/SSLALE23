@@ -1,8 +1,11 @@
 #include <stdio.h>
 #include <limits.h>
+
 //sumador de bytes
 int main(void) {
-    signed char suma = 0;
+
+    signed char suma = 0;   // Acumulador de la suma de bytes
+
     for (signed char valor; scanf("%hhd", &valor) == 1;) {
         if (valor >= SCHAR_MAX || valor <= SCHAR_MIN) {
             fprintf(stderr, "Error: Valor fuera del rango de un byte. Valor ingresado: %d\n", valor);
@@ -16,6 +19,8 @@ int main(void) {
         suma += valor;
         printf("Suma parcial (bytes): %d\n",suma);
     }
+
     printf("Suma final (bytes): %d\n", suma);
+    
     return 0;
 }
