@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
-
+#include <limits.h>
 // Definimos los estados del autómata para el sumador
 typedef enum {
     STATE_START,   // Estado inicial, aca limpiamos espacios y vemos con qué arranca el numero
@@ -51,6 +51,11 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
 
             case STATE_DIGITS:
                 if (caracter >= '0' && caracter <= '9') {
+                    if(valor_acumulado + (caracter - '0') > INT_MAX / 10 || valor_acumulado + (caracter - '0') < INT_MIN / 10) {
+                        fprintf(stderr, "Error: Overflow al leer el número\n");
+                        estado_actual = STATE_FAIL;
+                        break;
+                    }
                     valor_acumulado = valor_acumulado * 10 + (caracter - '0');
                 } else if (caracter == EOF) {
                     estado_actual = STATE_SUCCESS;
@@ -80,6 +85,10 @@ int main(void) {
 
     // Bucle para procesar y consumir nuestro autómata
     while (GetNextDecimal(stdin, &valor)) {
+        if(suma + valor > INT_MAX || suma + valor < INT_MIN) {
+            fprintf(stderr, "Error: Overflow al sumar %d a la suma actual %d\n", valor, suma);
+            return 1;
+        }
         suma += valor;
         printf("Suma parcial (Decimales): %d\n", suma);
     }
