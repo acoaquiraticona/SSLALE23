@@ -1,0 +1,51 @@
+# Compiled binaries
+*.exe
+*.out
+*.o
+*.obj
+*.a
+*.so
+*.dll
+*.dylib
+*.lib
+
+# Build directories
+build/
+bin/
+obj/
+out/
+debug/
+release/
+
+# IDE/editor files
+.vscode/
+*.code-workspace
+.idea/
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Local generated files
+*.ilk
+*.pdb
+*.map
+
+# CMake / Make generated artifacts
+CMakeCache.txt
+CMakeFiles/
+cmake-build-*/
+Makefile.win
+
+# Windows specific
+*.res
+*.pch
+*.manifest
