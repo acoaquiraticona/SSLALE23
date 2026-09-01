@@ -1,0 +1,23 @@
+digraph PokeDecimal {
+    rankdir=LR;
+    fontname="Helvetica";
+    node [shape=circle, fontname="Helvetica"];
+
+    start          [label="start"];
+    sign_leido     [label="sign_leido"];
+    primer_digito  [label="primer_digito"];
+    acumulando     [shape=doublecircle, label="acumulando\n(aceptación)"];
+    error          [shape=doublecircle, style=dashed, label="error"];
+
+    start -> start          [label="' ' (espacio)"];
+    start -> sign_leido     [label="'+' | '-'"];
+    start -> primer_digito  [label="ε (sin signo)"];
+
+    sign_leido -> primer_digito [label="ε"];
+
+    primer_digito -> acumulando [label="PokeDigito\n[BCSPJMEGON] (case-insens.)"];
+    primer_digito -> error      [label="otro caracter | EOF"];
+
+    acumulando -> acumulando [label="PokeDigito"];
+    acumulando -> acumulando [style=invis]; // fin implícito: otro caracter o EOF => aceptar y hacer ungetc
+}

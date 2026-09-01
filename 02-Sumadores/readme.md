@@ -140,3 +140,109 @@ donde:
 | **STATE_FAIL**    | —                          | —                          | —              | —                        | —                          | —              |
 
 > **Nota:** En la implementación en C, la llegada de `EOF` se gestiona como condición de corte del flujo.
+
+
+
+
+# Sumador X — "PokeDecimal"
+
+Problema 5 del trabajo **Sumadores**: lenguaje regular propio para representar enteros. Se eligió un alfabeto de dígitos basado en las iniciales de diez Pokémon.
+
+## 1. El lenguaje X (PokeDecimal)
+
+Cada dígito decimal se representa con una letra (mayúscula o minúscula),
+inicial de un Pokémon:
+
+| Letra | Pokémon    | Valor |
+|:-----:|------------|:-----:|
+|  B    | Bulbasaur  |   0   |
+|  C    | Charmander |   1   |
+|  S    | Squirtle   |   2   |
+|  P    | Pikachu    |   3   |
+|  J    | Jigglypuff |   4   |
+|  M    | Meowth     |   5   |
+|  E    | Eevee      |   6   |
+|  G    | Gengar     |   7   |
+|  O    | Onix       |   8   |
+|  N    | Ninetales  |   9   |
+
+Un número puede llevar signo opcional, igual que `decimal-constant`.
+
+Ejemplo: `-PSC` = -(3)(2)(1) = **-321**
+
+### 1.i. Por extensión (strings y conjuntos)
+
+Sea `D = {B,C,S,P,J,M,E,G,O,N,b,c,s,p,j,m,e,g,o,n}` (un símbolo por dígito,
+sin distinguir mayúscula/minúscula).
+
+    PokeNumero = { s·d1·d2·...·dn : n ≥ 1, di ∈ D, s ∈ {"", "+", "-"} }
+
+### 1.ii/1.iii. Expresión Regular / RegEx
+
+    [+-]?[BCSPJMEGONbcspjmegon]+
+
+### 1.iv. Gramática Formal (GIC)
+
+    PokeNumero  -> Signo PokeDigitos
+    Signo       -> '+' | '-' | ε
+    PokeDigitos -> PokeDigito PokeDigitos | PokeDigito
+    PokeDigito  -> 'B'|'C'|'S'|'P'|'J'|'M'|'E'|'G'|'O'|'N'
+                 | 'b'|'c'|'s'|'p'|'j'|'m'|'e'|'g'|'o'|'n'
+
+### 1.v. BNF
+
+    <poke-numero>   ::= <signo> <poke-digitos>
+    <signo>         ::= "+" | "-" | ""
+    <poke-digitos>  ::= <poke-digito> | <poke-digito> <poke-digitos>
+    <poke-digito>   ::= "B" | "C" | "S" | "P" | "J" | "M" | "E" | "G" | "O" | "N"
+                       | "b" | "c" | "s" | "p" | "j" | "m" | "e" | "g" | "o" | "n"
+
+### 1.vi. Autómata Finito
+
+Ver `ConstanteDecimalX.gv`. Estados:
+
+- `start`: inicial, consume espacios.
+- `sign_leido`: se leyó `+`/`-`, todavía no hay ningún dígito.
+- `primer_digito`: se exige el primer PokeDigito (si no aparece, error).
+- `acumulando`: estado de aceptación; permanece mientras entren PokeDigitos.
+
+n-upla formal: `(Q, Σ, δ, q0, F)` con
+
+- `Q = {start, sign_leido, primer_digito, acumulando, error}`
+- `Σ = {'+','-',espacio} ∪ D ∪ {otros}`
+- `q0 = start`
+- `F = {acumulando}`
+- `δ` según las transiciones dibujadas en el `.gv`.
+
+## 2. Implementación elegida: goto (Implementación #2)
+
+En `SumarX.c`, `GetNextX` implementa el autómata de arriba con **etiquetas
+como estados** y **goto como transición**, siguiendo 3.8 *Goto and labels*
+de K&R, tal como pide la consigna.
+
+## 3. ¿Tiene alguna aplicación el goto hoy en día?
+
+Sí, en casos puntuales y acotados, aunque sigue siendo evitado como
+herramienta de control de flujo general:
+
+- **Limpieza de recursos / manejo de errores en C**: el patrón
+  `goto cleanup;` al final de una función (liberar múltiples recursos en
+  orden inverso) es idiomático en proyectos como el kernel de Linux, porque
+  C no tiene `finally` ni RAII.
+- **Salir de loops anidados**: cuando `break` solo rompe un nivel, `goto`
+  evita banderas auxiliares.
+- **Código generado automáticamente**: generadores de parsers/lexers
+  (herramientas al estilo Ragel) o traducciones de máquinas de estado
+  suelen emitir `goto`s porque el código no lo escribe ni lo mantiene una
+  persona.
+- **Lenguajes modernos que lo conservan**: C, C++ y Go incluyen `goto`
+  (Go lo agregó deliberadamente, con restricciones sintácticas para
+  evitar los peores abusos). Python, Java, Rust y JavaScript no lo tienen
+  como tal — Java se reservó la palabra pero nunca la implementó, y Rust
+  ofrece `break`/`continue` con etiquetas como alternativa más segura para
+  el caso de loops anidados.
+
+En síntesis, la crítica de Dijkstra sigue vigente para el uso
+indiscriminado del `goto` como reemplazo de estructuras de control, pero
+sobrevive como herramienta puntual para patrones muy específicos que el
+lenguaje no resuelve de otra forma.

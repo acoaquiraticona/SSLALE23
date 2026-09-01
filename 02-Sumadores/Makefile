@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -std=c23 -Wall -Wextra -g
-CPPFLAGS = -I. -ISumarXAux/PokeParser -ISumarXAux/Pokedex -ISumarXAux/PokeArithmetic -I/Tests
+CPPFLAGS = -I. -ISumadorX2/SumadorXAux -I/SumadorX2/Poketests
 
 BIN_DIR := bin
 OBJ_DIR := obj
@@ -12,11 +12,7 @@ all: $(BIN_DIR)/SumarBytes \
      $(BIN_DIR)/SumarInt_Ns \
      $(BIN_DIR)/SumarDecimalesScanf \
      $(BIN_DIR)/SumarDecimalGetNextDecimal \
-     $(BIN_DIR)/SumarX \
-	 $(BIN_DIR)/TestPokeAdder \
-	 $(BIN_DIR)/TestPokeParser \
-	 $(BIN_DIR)/TestPokeIntegracion \
-	 $(BIN_DIR)/TestPokeArithmetic
+     $(BIN_DIR)/SumarX 
 
 testPokemon: $(BIN_DIR)/TestPokeAdder \
 			 $(BIN_DIR)/TestPokeParser \
@@ -61,7 +57,7 @@ $(OBJ_DIR)/PokeArithmetic.o: SumarXAux/PokeArithmetic/PokeArithmetic.c SumarXAux
 $(OBJ_DIR)/Pokedex.o: SumarXAux/Pokedex/Pokedex.c SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarXAux/Pokedex/Pokedex.c -o $(OBJ_DIR)/Pokedex.o
 
-$(OBJ_DIR)/SumarX.o: SumarX.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
+$(OBJ_DIR)/SumarX.o: SumarX.c | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarX.c -o $(OBJ_DIR)/SumarX.o
 
 #==================== COMPILACIÓN DE EJECUTABLES ====================	
@@ -81,8 +77,8 @@ $(BIN_DIR)/SumarDecimalesScanf: $(OBJ_DIR)/SumarDecimalesScanf.o | $(BIN_DIR)
 $(BIN_DIR)/SumarDecimalGetNextDecimal: $(OBJ_DIR)/SumarDecimalGetNextDecimal.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(OBJ_DIR)/SumarDecimalGetNextDecimal.o -o $(BIN_DIR)/SumarDecimalGetNextDecimal
 
-$(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/SumarX.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/SumarX
+$(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/SumarX.o -o $(BIN_DIR)/SumarX
 
 #==================== COMPILACIÓN DE TESTS ====================
 $(BIN_DIR)/TestPokeAdder: $(OBJ_DIR)/TestPokeAdder.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
