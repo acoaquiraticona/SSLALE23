@@ -14,7 +14,7 @@ typedef enum {
 bool GetNextDecimal(FILE* flujo, int *numero_leido) {
     State estado_actual = STATE_START;
     int caracter;
-    int valor_acumulado = 0;
+    long long valor_acumulado = 0; // long long: permite acumular sin overflow del propio acumulador
     int signo = 1;
 
     while (estado_actual != STATE_SUCCESS && estado_actual != STATE_FAIL) {
@@ -28,7 +28,7 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                 } else if (caracter == '+' || caracter == '-') {
                     signo = (caracter == '-') ? -1 : 1;
                     estado_actual = STATE_SIGN;
-                } else if (caracter >= '1' && caracter <= '9') { // Comprobación de rango manual
+                } else if (caracter >= '0' && caracter <= '9') { // '0' incluido: "0" es decimal válido para scanf %d
                     valor_acumulado = caracter - '0';
                     estado_actual = STATE_DIGITS;
                 } else {
@@ -36,9 +36,8 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                     estado_actual = STATE_FAIL;
                 }
                 break;
-
             case STATE_SIGN:
-                if (caracter >= '1' && caracter <= '9') {
+                if (caracter >= '0' && caracter <= '9') { // '0' incluido: "+0"/"-0" son válidos
                     valor_acumulado = caracter - '0';
                     estado_actual = STATE_DIGITS;
                 } else if (caracter == EOF) {
@@ -48,15 +47,19 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                     estado_actual = STATE_FAIL;
                 }
                 break;
-
             case STATE_DIGITS:
                 if (caracter >= '0' && caracter <= '9') {
-                    if(valor_acumulado + (caracter - '0') > INT_MAX / 10 || valor_acumulado + (caracter - '0') < INT_MIN / 10) {
+                    // Límite de magnitud según el signo: |INT_MIN| > INT_MAX, por eso no se puede
+                    // acumular siempre en positivo y aplicar el signo al final sin distinguir esto
+                    long long limite = (signo == 1) ? (long long)INT_MAX : -(long long)INT_MIN;
+                    long long candidato = valor_acumulado * 10 + (caracter - '0'); // seguro en long long: valor_acumulado ya está acotado por 'limite'
+                    if (candidato > limite) {
                         fprintf(stderr, "Error: Overflow al leer el número\n");
+                        ungetc(caracter, flujo); // Evita perder el dígito que disparó el overflow
                         estado_actual = STATE_FAIL;
                         break;
                     }
-                    valor_acumulado = valor_acumulado * 10 + (caracter - '0');
+                    valor_acumulado = candidato;
                 } else if (caracter == EOF) {
                     estado_actual = STATE_SUCCESS;
                 } else {
@@ -64,7 +67,6 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
                     estado_actual = STATE_SUCCESS;
                 }
                 break;
-
             default:
                 estado_actual = STATE_FAIL;
                 break;
@@ -72,7 +74,7 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
     }
 
     if (estado_actual == STATE_SUCCESS) {
-        *numero_leido = signo * valor_acumulado;
+        *numero_leido = (int)(signo * valor_acumulado); // cast seguro: valor_acumulado ya validado dentro de rango int
         return true;
     } else {
         return false;
@@ -82,17 +84,17 @@ bool GetNextDecimal(FILE* flujo, int *numero_leido) {
 int main(void) {
     int suma = 0;
     int valor;
-
     // Bucle para procesar y consumir nuestro autómata
     while (GetNextDecimal(stdin, &valor)) {
-        if(suma + valor > INT_MAX || suma + valor < INT_MIN) {
+        // Comparación sin sumar antes: "suma + valor" podía desbordar y el propio chequeo sería UB
+        if ((valor > 0 && suma > INT_MAX - valor) ||
+            (valor < 0 && suma < INT_MIN - valor)) {
             fprintf(stderr, "Error: Overflow al sumar %d a la suma actual %d\n", valor, suma);
             return 1;
         }
         suma += valor;
         printf("Suma parcial (Decimales): %d\n", suma);
     }
-
     printf("Suma total final: %d\n", suma);
     return 0;
 }
