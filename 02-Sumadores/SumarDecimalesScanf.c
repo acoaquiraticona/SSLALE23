@@ -7,7 +7,7 @@ int main (void) {
         {
             if ((valor > 0 && suma > DBL_MAX - valor) ||
                 (valor < 0 && suma < DBL_MIN + valor)) {
-                    fprintf(stderr, "Error: Stack Overflow detectado. Suma se detiene en: %lf\n", suma);
+                    fprintf(stderr, "Error: Stack Overflow detectado (Como hiciste?). Suma se detiene en: %lf\n", suma);
                     break;
                 }
         }

@@ -13,7 +13,7 @@ int main(void) {
         }
         
         suma += valor;
-        printf("Suma =: %d\n", suma);
+        printf("Suma = %d\n", suma);
     }
     
     return 0;

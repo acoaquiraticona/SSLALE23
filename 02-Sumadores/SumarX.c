@@ -37,14 +37,14 @@ bool GetNextX(FILE *s, int *p) {
 
 start:
     c = fgetc(s);
-    if (c == EOF) return false;          /* fin de entrada: no hay numero */
-    if (isspace(c)) goto start;          /* ignora blancos entre numeros */
+    if (c == EOF) return false;         
+    if (isspace(c)) goto start;          
 
     if (c == '+' || c == '-') {
         signo = (c == '-') ? -1 : 1;
         goto sign_leido;
     }
-    goto primer_digito;                  /* el caracter leido puede ser digito */
+    goto primer_digito;                
 
 sign_leido:
     c = fgetc(s);
@@ -53,7 +53,6 @@ sign_leido:
 primer_digito:
     valor = PokeDigitValue(c);
     if (valor == -1) {
-        /* Ni siquiera arranca un PokeNumero: no es un token nuestro */
         if (c != EOF) ungetc(c, s);
         return false;
     }
@@ -64,11 +63,14 @@ acumulando:
     c = fgetc(s);
     valor = PokeDigitValue(c);
     if (valor != -1) {
+        if (acumulado > LONG_MAX / 10 ||
+            (acumulado == LONG_MAX / 10 && valor > LONG_MAX % 10)) {
+            fprintf(stderr, "SumarX: No caben los pokemones en la pokebola (Overflow D:)\n");
+            return false;
+        }
         acumulado = acumulado * 10 + valor;
         goto acumulando;
     }
-    /* Se acabaron los PokeDigitos: aceptamos y devolvemos el caracter
-       que no pertenece al numero (o llegamos a EOF, nada que devolver). */
     if (c != EOF) ungetc(c, s);
     *p = (int)(signo * acumulado);
     return true;
@@ -80,10 +82,18 @@ int main(void) {
     int cantidad = 0;
 
     while (GetNextX(stdin, &numero)) {
-        if (total > LONG_MAX - numero) {
-            fprintf(stderr,
-                    "SumarX: No caben los pokemones en la pokebola (Overflow D:)\n");
-            return 1;
+        if (numero > 0) {
+            if (total > LONG_MAX - numero) {
+                fprintf(stderr,
+                        "SumarX: No caben los pokemones en la pokebola (Overflow D:)\n");
+                return 1;
+            }
+        } else if (numero < 0) {
+            if (total < LONG_MIN - numero) {
+                fprintf(stderr,
+                        "SumarX: No caben los pokemones en la pokebola (Overflow D:)\n");
+                return 1;
+            }
         }
         total += numero;
         cantidad++;

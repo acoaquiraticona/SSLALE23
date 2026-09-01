@@ -1,26 +1,26 @@
 #include <stdio.h>
 #include <limits.h>
 
-//sumador de bytes
+// sumador de bytes
 int main(void) {
+    unsigned char suma = 0; // Acumulador de la suma de bytes
+    int valor;
 
-    signed char suma = 0;   // Acumulador de la suma de bytes
+    for ( valor = getchar(); valor != EOF; valor = getchar()) {
+        unsigned char byte = (unsigned char)valor;
 
-    for (signed char valor; scanf("%hhd", &valor) == 1;) {
-        if (valor >= SCHAR_MAX || valor <= SCHAR_MIN) {
-            fprintf(stderr, "Error: Valor fuera del rango de un byte. Valor ingresado: %d\n", valor);
+        if (valor == '\n')
             continue;
-        }
-        if ((valor > 0 && suma > SCHAR_MAX - valor) || 
-            (valor < 0 && suma < SCHAR_MIN + valor)) {
-            fprintf(stderr, "Error: Overflow detectado. Suma se detiene en: %d\n", suma);
+        if (suma > UCHAR_MAX - byte) {
+            fprintf(stderr, "Error: Overflow detectado. Suma se detiene en: %u\n", (unsigned int)suma);
             break;
         }
-        suma += valor;
-        printf("Suma parcial (bytes): %d\n",suma);
+
+        suma += byte;
+        printf("Suma parcial (bytes): %u\n", (unsigned int)suma);
     }
 
-    printf("Suma final (bytes): %d\n", suma);
-    
+    printf("Suma final (bytes): %u\n", (unsigned int)suma);
+
     return 0;
 }
