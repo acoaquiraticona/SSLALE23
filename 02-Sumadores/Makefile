@@ -1,40 +1,30 @@
 CC = gcc
 CFLAGS = -std=c23 -Wall -Wextra -g
-CPPFLAGS = -I. -ISumarXAux/PokeParser -ISumarXAux/Pokedex -ISumarXAux/PokeArithmetic -I/Tests
+CPPFLAGS = -I.
 
 BIN_DIR := bin
 OBJ_DIR := obj
 
-.PHONY: all clean testPokemon
+.PHONY: all clean
+
 # ==================== REGLAS ====================
 all: $(BIN_DIR)/SumarBytes \
      $(BIN_DIR)/SumarInts \
      $(BIN_DIR)/SumarInt_Ns \
      $(BIN_DIR)/SumarDecimalesScanf \
      $(BIN_DIR)/SumarDecimalGetNextDecimal \
-     $(BIN_DIR)/SumarX \
-	 $(BIN_DIR)/TestPokeAdder \
-	 $(BIN_DIR)/TestPokeParser \
-	 $(BIN_DIR)/TestPokeIntegracion \
-	 $(BIN_DIR)/TestPokeArithmetic
+     $(BIN_DIR)/SumarX
 
-testPokemon: $(BIN_DIR)/TestPokeAdder \
-			 $(BIN_DIR)/TestPokeParser \
-			 $(BIN_DIR)/TestPokeIntegracion \
-			 $(BIN_DIR)/TestPokeArithmetic
-	./$(BIN_DIR)/TestPokeAdder
-	./$(BIN_DIR)/TestPokeParser
-	./$(BIN_DIR)/TestPokeIntegracion
-	./$(BIN_DIR)/TestPokeArithmetic
 $(OBJ_DIR):
-	mkdir -p $(OBJ_DIR)
+	@if not exist "$(OBJ_DIR)" mkdir "$(OBJ_DIR)"
 
 $(BIN_DIR):
-	mkdir -p $(BIN_DIR)
-
+	@if not exist "$(BIN_DIR)" mkdir "$(BIN_DIR)"
 
 clean:
-	rm -rf $(OBJ_DIR) $(BIN_DIR) *.o *.exe
+	@if exist "$(OBJ_DIR)" rmdir /s /q "$(OBJ_DIR)"
+	@if exist "$(BIN_DIR)" rmdir /s /q "$(BIN_DIR)"
+	@del /q /f *.o *.exe 2> NUL
 
 # ==================== COMPILACIÓN DE OBJETOS ====================
 $(OBJ_DIR)/SumarBytes.o: SumarBytes.c | $(OBJ_DIR)
@@ -52,19 +42,10 @@ $(OBJ_DIR)/SumarDecimalesScanf.o: SumarDecimalesScanf.c | $(OBJ_DIR)
 $(OBJ_DIR)/SumarDecimalGetNextDecimal.o: SumarDecimalGetNextDecimal.c | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarDecimalGetNextDecimal.c -o $(OBJ_DIR)/SumarDecimalGetNextDecimal.o
 
-$(OBJ_DIR)/PokeParser.o: SumarXAux/PokeParser/PokeParser.c SumarXAux/PokeParser/PokeParser.h SumarXAux/PokeParser/ParserErrors.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarXAux/PokeParser/PokeParser.c -o $(OBJ_DIR)/PokeParser.o
-
-$(OBJ_DIR)/PokeArithmetic.o: SumarXAux/PokeArithmetic/PokeArithmetic.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarXAux/PokeArithmetic/PokeArithmetic.c -o $(OBJ_DIR)/PokeArithmetic.o
-
-$(OBJ_DIR)/Pokedex.o: SumarXAux/Pokedex/Pokedex.c SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarXAux/Pokedex/Pokedex.c -o $(OBJ_DIR)/Pokedex.o
-
-$(OBJ_DIR)/SumarX.o: SumarX.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
+$(OBJ_DIR)/SumarX.o: SumarX.c | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarX.c -o $(OBJ_DIR)/SumarX.o
 
-#==================== COMPILACIÓN DE EJECUTABLES ====================	
+#==================== COMPILACIÓN DE EJECUTABLES ====================
 
 $(BIN_DIR)/SumarBytes: $(OBJ_DIR)/SumarBytes.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(OBJ_DIR)/SumarBytes.o -o $(BIN_DIR)/SumarBytes
@@ -81,33 +62,6 @@ $(BIN_DIR)/SumarDecimalesScanf: $(OBJ_DIR)/SumarDecimalesScanf.o | $(BIN_DIR)
 $(BIN_DIR)/SumarDecimalGetNextDecimal: $(OBJ_DIR)/SumarDecimalGetNextDecimal.o | $(BIN_DIR)
 	$(CC) $(CFLAGS) $(OBJ_DIR)/SumarDecimalGetNextDecimal.o -o $(BIN_DIR)/SumarDecimalGetNextDecimal
 
-$(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/SumarX.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/SumarX
-
-#==================== COMPILACIÓN DE TESTS ====================
-$(BIN_DIR)/TestPokeAdder: $(OBJ_DIR)/TestPokeAdder.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/TestPokeAdder.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/TestPokeAdder
-
-$(BIN_DIR)/TestPokeParser: $(OBJ_DIR)/TestPokeParser.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/TestPokeParser.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/TestPokeParser
-
-$(BIN_DIR)/TestPokeIntegracion: $(OBJ_DIR)/TestPokeIntegracion.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/TestPokeIntegracion.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/TestPokeIntegracion
-
-$(BIN_DIR)/TestPokeArithmetic: $(OBJ_DIR)/TestPokeArithmetic.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o | $(BIN_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/TestPokeArithmetic.o $(OBJ_DIR)/PokeArithmetic.o $(OBJ_DIR)/PokeParser.o $(OBJ_DIR)/Pokedex.o -o $(BIN_DIR)/TestPokeArithmetic
-
-# ==================== COMPILACIÓN DE OBJETOS DE TESTS ====================	
-
-$(OBJ_DIR)/TestPokeAdder.o: Tests/PokeTests/TestPokeAdder.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c Tests/PokeTests/TestPokeAdder.c -o $(OBJ_DIR)/TestPokeAdder.o
-
-$(OBJ_DIR)/TestPokeParser.o: Tests/PokeTests/TestPokeParser.c SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c Tests/PokeTests/TestPokeParser.c -o $(OBJ_DIR)/TestPokeParser.o
-
-$(OBJ_DIR)/TestPokeArithmetic.o: Tests/PokeTests/TestPokeArithmetic.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c Tests/PokeTests/TestPokeArithmetic.c -o $(OBJ_DIR)/TestPokeArithmetic.o
-
-$(OBJ_DIR)/TestPokeIntegracion.o: Tests/PokeTests/TestPokeIntegracion.c SumarXAux/PokeArithmetic/PokeArithmetic.h SumarXAux/PokeParser/PokeParser.h SumarXAux/Pokedex/Pokedex.h | $(OBJ_DIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c Tests/PokeTests/TestPokeIntegracion.c -o $(OBJ_DIR)/TestPokeIntegracion.o
+$(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o | $(BIN_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/SumarX.o -o $(BIN_DIR)/SumarX
 

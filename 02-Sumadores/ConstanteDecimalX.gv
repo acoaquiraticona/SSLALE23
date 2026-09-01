@@ -1,89 +1,40 @@
-digraph PokemonLanguage {
+// ConstanteDecimalX.gv
+// Autómata Finito Determinista para el lenguaje X (SumarX)
+// Lenguaje: un nombre de Pokémon de los primeros 151
+// (Mew = 0, Bulbasaur = 1, ..., Mewtwo = 150)
+
+digraph AFD_SumarX {
     rankdir=LR;
+    size="11,6";
+    node [shape=circle, fontsize=12, fontname="Helvetica"];
+    edge [fontsize=10, fontname="Helvetica"];
 
-    graph [
-        label="Autómata Finito Determinista (AFD) — Lenguaje SumarX de Pokémon",
-        labelloc="t",
-        fontsize=18
-    ];
+    // Estados
+    q0  [label="q0\ninicio /\nsaltando espacios"];
+    q1  [label="q1\nleyendo\nnombre"];
+    qA  [label="qA\naceptación", shape=doublecircle, style=filled, fillcolor="#d4edda"];
+    qE  [label="qE\nerror", style=filled, fillcolor="#f8d7da"];
 
-    node [
-        shape=circle,
-        fontsize=12
-    ];
+    // Flecha de inicio
+    start [shape=point, width=0.15];
+    start -> q0;
 
-    edge [
-        fontsize=10
-    ];
+    // Transiciones
+    q0 -> q0  [label="espacio"];
+    q0 -> q1  [label="carácter de nombre\n(letra, ♀, ♂, ', .)"];
+    q0 -> qE  [label="otro"];
 
-    /* ---------------------------------------------------------------------- */
-    /* Estados                                                                 */
-    /* ---------------------------------------------------------------------- */
+    q1 -> q1  [label="carácter de nombre"];
+    q1 -> qA  [label="espacio / \\n / EOF"];
+    q1 -> qE  [label="otro"];
 
-    q0 [
-        label="q0\nInicio"
-    ];
+    qA -> qA  [label="espacio"];
+    qA -> qE  [label="cualquier símbolo"];
 
-    q1 [
-        label="q1\nEsperando + o fin",
-        shape=doublecircle,
-        style=filled,
-        fillcolor="#d5f5e3"
-    ];
+    qE -> qE  [label="cualquier símbolo"];
 
-    q2 [
-        label="q2\nEsperando Pokémon"
-    ];
-
-    qE [
-        label="qE\nError",
-        shape=circle,
-        style=filled,
-        fillcolor="#fadbd8"
-    ];
-
-
-    /* ---------------------------------------------------------------------- */
-    /* Estado inicial                                                         */
-    /* ---------------------------------------------------------------------- */
-
-    inicio [
-        shape=point,
-        label=""
-    ];
-
-    inicio -> q0;
-
-
-    /* ---------------------------------------------------------------------- */
-    /* Transiciones                                                           */
-    /* ---------------------------------------------------------------------- */
-
-    q0 -> q1 [label="P"];
-    q1 -> q2 [label="+"];
-    q2 -> q1 [label="P"];
-
-
-    /* ---------------------------------------------------------------------- */
-    /* Errores                                                                */
-    /* ---------------------------------------------------------------------- */
-
-    q0 -> qE [label="+"];
-    q2 -> qE [label="+"];
-    q1 -> qE [label="P"];
-
-    /*
-     * Estado de error: sumidero (trap state).
-     * δ(qE, x) = qE para todo x ∈ Σ.
-     */
-    qE -> qE [label="P, +, espacio"];
-
-
-    /* ---------------------------------------------------------------------- */
-    /* Espacios                                                               */
-    /* ---------------------------------------------------------------------- */
-
-    q0 -> q0 [label="espacio"];
-    q1 -> q1 [label="espacio"];
-    q2 -> q2 [label="espacio"];
+    // Pie de página
+    label="\nAFD del lenguaje X – SumarX\nΣ = letras + {♀, ♂, ', ., espacio, \\n}\nUn token = un Pokémon válido de la Pokédex (tabla de 151 nombres)";
+    labelloc=b;
+    fontsize=11;
 }

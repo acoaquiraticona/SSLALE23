@@ -63,28 +63,29 @@
 │   ├── SumarX.c                            # Solución principal del sumador X
 │   ├── ConstanteDecimalC23.gv              # Diagrama relacionado con constante decimal
 │   ├── ConstanteDecimalX.gv                # Diagrama relacionado con constante decimal X
-│   ├── DefinicionSumarX/                   # Documentación y diagramas de SumarX
-│   │   ├── DefinicionSumarX.md             # Definición del sumador X
-│   │   ├── SumarX.gv                       # Diagrama de SumarX
-│   │   └── SumaXME.md                      # Material adicional del ejercicio
-│   ├── SumarXAux/                          # Módulos auxiliares para SumarX
-│   │   ├── PokeArithmetic/                 # Lógica aritmética y pruebas
-│   │   │   ├── PokeArithmetic.c
-│   │   │   └── PokeArithmetic.h
-│   │   ├── Pokedex/                        # Módulo de pokédex auxiliar
-│   │   │   ├── Pokedex.c
-│   │   │   └── Pokedex.h
-│   │   └── PokeParser/                     # Parser de datos auxiliar
-│   │       ├── ParserErrors.h
-│   │       ├── PokeParser.c
-│   │       └── PokeParser.h
-│   └── Tests/                              # Pruebas del TP2
-│       └── PokeTests/                      # Casos de prueba del módulo Poke
-│           ├── DefinicionPokeTests.md
-│           ├── TestPokeAdder.c
-│           ├── TestPokeArithmetic.c
-│           ├── TestPokeIntegracion.c
-│           └── TestPokeParser.c
+│   ├── DefinicionSumarX.md                 # Definición formal del lenguaje X (Pokémon)
+│   ├── OverEngineered SumarX/              # Versión modular y completa de SumarX
+│   │   ├── SumarX.c                        # Implementación principal
+│   │   ├── DefinicionSumarX/               # Documentación detallada
+│   │   │   ├── DefinicionSumarX.md         # Especificación formal del lenguaje
+│   │   │   └── SumaXME.md                  # Material adicional del ejercicio
+│   │   ├── SumarXAux/                      # Módulos auxiliares
+│   │   │   ├── PokeArithmetic/             # Lógica aritmética en base 151
+│   │   │   │   ├── PokeArithmetic.c
+│   │   │   │   └── PokeArithmetic.h
+│   │   │   ├── Pokedex/                    # Gestión de la pokédex
+│   │   │   │   ├── Pokedex.c
+│   │   │   │   └── Pokedex.h
+│   │   │   └── PokeParser/                 # Parser de entrada
+│   │   │       ├── ParserErrors.h
+│   │   │       ├── PokeParser.c
+│   │   │       └── PokeParser.h
+│   │   └── PokeTests/                      # Casos de prueba
+│   │       ├── DefinicionPokeTests.md      # Especificación de tests
+│   │       ├── TestPokeAdder.c             # Pruebas del sumador
+│   │       ├── TestPokeArithmetic.c        # Pruebas de aritmética
+│   │       ├── TestPokeIntegracion.c       # Pruebas de integración
+│   │       └── TestPokeParser.c            # Pruebas del parser
 └──
 ```
 
@@ -135,6 +136,9 @@ make clean
 - [`01-Strings/Strings.md`](./01-Strings/Strings.md) — Descripción detallada de la interfaz del TAD String: funciones, parámetros, valores de retorno y ejemplos de uso.  
 - [`01-Strings/AnálisisComparativo.md`](./01-Strings/AnálisisComparativo.md) — Comparación entre Lenguaje C y Python.
 - [`02-Sumadores/readme.md`](./02-Sumadores/readme.md) — Resumen y especificaciones del trabajo práctico de sumadores.
+- [`02-Sumadores/DefinicionSumarX.md`](./02-Sumadores/DefinicionSumarX.md) — Definición formal del lenguaje X basado en nombres de Pokémon (151 primeros).
+- [`02-Sumadores/OverEngineered SumarX/DefinicionSumarX/DefinicionSumarX.md`](./02-Sumadores/OverEngineered%20SumarX/DefinicionSumarX/DefinicionSumarX.md) — Especificación formal detallada del sumador con ejemplos de autómatas y gramáticas.
+- [`02-Sumadores/OverEngineered SumarX/DefinicionSumarX/SumaXME.md`](./02-Sumadores/OverEngineered%20SumarX/DefinicionSumarX/SumaXME.md) — Material complementario del ejercicio.
 
 ---
 
