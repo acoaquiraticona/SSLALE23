@@ -21,24 +21,22 @@ static bool accumulate_operand(int16_t value, void *context){
 
 
 int main(void){
+    PokemonNumber *result = create_number();
+
+    if (!result) {
+        fprintf(stderr, "ERROR: memoria insuficiente\n");
+        return 1;
+    }
+
     while (true) {
-
-        /*
-         * Cada línea representa una nueva expresión y, por lo tanto,
-         * comienza con un nuevo acumulador.
-         */
-        PokemonNumber *result = create_number();
-
-        if (!result) {
-            fprintf(stderr,"ERROR: memoria insuficiente\n");
-            return 1;
-        }
-
         /*
          * El parser consume stdin directamente.
          *
          * Cada operando encontrado se entrega inmediatamente a
          * accumulate_operand().
+         *
+         * El acumulador se conserva entre expresiones, por lo que cada nueva
+         * expresión suma sobre el resultado previo.
          */
         ParseResult parsed = parse_expression(stdin, accumulate_operand, result);
 
@@ -47,40 +45,29 @@ int main(void){
          * terminamos normalmente.
          */
         if (parsed.status == PARSE_EOF) {
-            free_number(result);
             break;
         }
-
 
         /*
          * Error durante el parsing o procesamiento.
          */
         if (parsed.status != PARSE_OK) {
             fprintf(stderr, "ERROR: %s\n", parsed.error_message);
-            free_number(result);
-
             continue;
         }
-
 
         /*
          * Eliminamos ceros no significativos.
          */
         normalize_number(result);
 
-
         /*
-         * Mostramos el resultado.
+         * Mostramos el resultado acumulado actual.
          */
         print_number(result);
-
-
-        /*
-         * Liberamos el acumulador antes de procesar la siguiente expresión.
-         */
-        free_number(result);
     }
 
+    free_number(result);
 
     return 0;
 }
