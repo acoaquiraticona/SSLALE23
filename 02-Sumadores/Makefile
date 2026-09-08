@@ -5,7 +5,7 @@ CPPFLAGS = -I.
 BIN_DIR := bin
 OBJ_DIR := obj
 
-.PHONY: all clean
+.PHONY: all clean test
 
 # ==================== REGLAS ====================
 all: $(BIN_DIR)/SumarBytes \
@@ -13,18 +13,21 @@ all: $(BIN_DIR)/SumarBytes \
      $(BIN_DIR)/SumarInt_Ns \
      $(BIN_DIR)/SumarDecimalesScanf \
      $(BIN_DIR)/SumarDecimalGetNextDecimal \
-     $(BIN_DIR)/SumarX
+     $(BIN_DIR)/SumarX \
+	 $(BIN_DIR)/TestSumarX
+
+test: $(BIN_DIR)/TestSumarX
+	./$(BIN_DIR)/TestSumarX
 
 $(OBJ_DIR):
-	@if not exist "$(OBJ_DIR)" mkdir "$(OBJ_DIR)"
+	mkdir -p $(OBJ_DIR)
 
 $(BIN_DIR):
-	@if not exist "$(BIN_DIR)" mkdir "$(BIN_DIR)"
+	mkdir -p $(BIN_DIR)
 
 clean:
-	@if exist "$(OBJ_DIR)" rmdir /s /q "$(OBJ_DIR)"
-	@if exist "$(BIN_DIR)" rmdir /s /q "$(BIN_DIR)"
-	@del /q /f *.o *.exe 2> NUL
+	rm -rf $(OBJ_DIR) $(BIN_DIR)
+	rm -f *.o *.exe
 
 # ==================== COMPILACIÓN DE OBJETOS ====================
 $(OBJ_DIR)/SumarBytes.o: SumarBytes.c | $(OBJ_DIR)
@@ -44,6 +47,9 @@ $(OBJ_DIR)/SumarDecimalGetNextDecimal.o: SumarDecimalGetNextDecimal.c | $(OBJ_DI
 
 $(OBJ_DIR)/SumarX.o: SumarX.c | $(OBJ_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c SumarX.c -o $(OBJ_DIR)/SumarX.o
+
+$(OBJ_DIR)/TestSumarX.o: TestSumarX.c SumarX.c | $(OBJ_DIR)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c TestSumarX.c -o $(OBJ_DIR)/TestSumarX.o
 
 #==================== COMPILACIÓN DE EJECUTABLES ====================
 
@@ -65,3 +71,6 @@ $(BIN_DIR)/SumarDecimalGetNextDecimal: $(OBJ_DIR)/SumarDecimalGetNextDecimal.o |
 $(BIN_DIR)/SumarX: $(OBJ_DIR)/SumarX.o | $(BIN_DIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJ_DIR)/SumarX.o -o $(BIN_DIR)/SumarX
 
+
+$(BIN_DIR)/TestSumarX: $(OBJ_DIR)/TestSumarX.o | $(BIN_DIR)
+	$(CC) $(CFLAGS) $(OBJ_DIR)/TestSumarX.o -o $(BIN_DIR)/TestSumarX
