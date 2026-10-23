@@ -1,6 +1,6 @@
 # 📘 Repo Sintaxis y Semántica de los Lenguajes - Grupo 9
 
-> **Trabajos Prácticos N°1 y N°2**
+> **Trabajos Prácticos N°1, N°2 y N°3**
 >
 > **Ingeniería en Sistemas de la Información** · **Universidad Tecnológica Nacional - Facultad Regional Buenos Aires**
 
@@ -26,7 +26,7 @@
 | 2 | Joaquín Benicio Domínguez | 233.839-7 |
 | 3 | Juan Gabriel Laterza Rosa | 163.171-8 |
 | 4 | Julian Clemente | 222.226-7 |
-| 5 | Thiago Gabriel Salles | 234.176-1 |
+| 5 | Thiago Gabriel Vazquez | 234.176-1 |
 | 6 | Victor Fernández | 174.545-1 |
 
 ---
