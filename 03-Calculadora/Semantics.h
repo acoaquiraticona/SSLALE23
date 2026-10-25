@@ -4,6 +4,7 @@
 /*
  * Declaraciones de funciones y estructuras para la semantica de la calculadora, asi devuelve los resultados al parse y sigue la especificacin de calc.md
  */
+#include "errors.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -17,6 +18,8 @@ typedef struct {
     bool ok;
     int64_t valor;
     const char *codigo;
+    /* Representacion comun; codigo y detalle se mantienen por compatibilidad. */
+    Diagnostic diagnostico;
     char detalle[96];
 }ResultadoSem;
 
@@ -29,7 +32,15 @@ ResultadoSem SemVariable(const char *nombre);
 ResultadoSem SemSumar(int64_t primerSumando, int64_t segundoSumando);  //Semantica para plusle
 ResultadoSem SemRestar(int64_t minuendo, int64_t sustraendo);    // minun 
 ResultadoSem SemMultiplicar(int64_t multiplicando, int64_t multiplicador); // tandemaus 
+/* PROBLEMA: falinks y la division no forman parte de Calc.md; la declaracion queda como referencia.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 ResultadoSem SemDividir(int64_t dividendo, int64_t divisor);     //falinks
+
+#endif
+/* Version corregida. */
+
+
 ResultadoSem SemNegar(int64_t operando);         // minun unario
 ResultadoSem SemDuplicar(int64_t operando);     // ditto
 
@@ -37,6 +48,9 @@ ResultadoSem SemDuplicar(int64_t operando);     // ditto
 ResultadoSem SemAsignar(const char *nombre, int64_t valor); //es como la asignacion crear o remplazar un valor para una variable
 
 ResultadoSem SemLiberar(const char *nombre);
+
+/* Una tabla vacia por cada sesion del parser. */
+void SemReset(void);
 
 void SemAPokemon(int64_t valor, char *destino, size_t tamanio);
 

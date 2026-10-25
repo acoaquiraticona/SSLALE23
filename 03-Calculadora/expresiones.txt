@@ -1,0 +1,4 @@
+captura energia = [ivysaur] plusle [venusaur] tandemaus [ivysaur];
+energia;
+ditto(energia);
+liberar energia;

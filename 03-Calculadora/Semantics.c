@@ -22,6 +22,9 @@ static ResultadoSem Exito(int64_t valor){
 }
  
 // Aca armamos el resultado fallido
+/* PROBLEMA: el resultado no contenia la representacion compartida de errors.h.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 static ResultadoSem Fallo(const char *codigo, const char *detalle){
     ResultadoSem resultado = {0};
  
@@ -31,7 +34,23 @@ static ResultadoSem Fallo(const char *codigo, const char *detalle){
     return resultado;
 }
  
+
+#endif
+/* Version corregida. */
+
+static ResultadoSem Fallo(const char *codigo, const char *detalle) {
+    ResultadoSem resultado = {0};
+    resultado.ok = false;
+    resultado.diagnostico = MakeDiagnostic(ErrorCodeFromName(codigo), (SourcePosition){0, 0}, detalle);
+    resultado.codigo = ErrorCodeName(resultado.diagnostico.codigo);
+    snprintf(resultado.detalle, sizeof resultado.detalle, "%s", detalle);
+    return resultado;
+}
+
 // Fallo con E_undefined para la variable
+/* PROBLEMA: el detalle debe quedar tambien en el diagnostico comun, no solo en el campo anterior.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 static ResultadoSem NoExiste(const char *nombre){
     ResultadoSem resultado = Fallo("E_UNDEFINED", "");
  
@@ -39,6 +58,16 @@ static ResultadoSem NoExiste(const char *nombre){
     return resultado;
 }
  
+
+#endif
+/* Version corregida. */
+
+static ResultadoSem NoExiste(const char *nombre) {
+    char detalle[96];
+    snprintf(detalle, sizeof detalle, "La variable %s no existe.", nombre);
+    return Fallo("E_UNDEFINED", detalle);
+}
+
 //Buscamos la el nombre de la variable, si la encuentra nos da el puntero sino NULL
 static Variable *Buscar(const char *nombre){
     for (int lugar = 0; lugar < SEM_MAX_VARIABLES; lugar++)
@@ -98,9 +127,22 @@ static ResultadoSem ControlarRango(int64_t valor){
 }
 
 //6.2 fila natural
+/* PROBLEMA: tambien se debe verificar el dominio natural, aun si el llamador no marca fuera_de_rango.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 ResultadoSem SemNatural(int64_t valor, bool fuera_de_rango){
     if (fuera_de_rango)
         return Fallo("E_RANGE", "El literal supera 999999.");
+    return Exito(valor);
+}
+
+
+#endif
+/* Version corregida. */
+
+ResultadoSem SemNatural(int64_t valor, bool fuera_de_rango) {
+    if (fuera_de_rango || valor < 0 || valor > SEM_VALOR_MAXIMO)
+        return Fallo("E_RANGE", "El literal esta fuera de [0, 999999].");
     return Exito(valor);
 }
 
@@ -119,12 +161,20 @@ ResultadoSem SemMultiplicar(int64_t multiplicando, int64_t multiplicador){
     return ControlarRango(multiplicando * multiplicador);
 }
 
+/* PROBLEMA: la division y E_DIV_ZERO no estan especificados; no se habilitan en el interprete.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 //6.2 dividendo falinks divisor
 ResultadoSem SemDividir(int64_t dividendo, int64_t divisor){
     if (divisor == 0)
         return Fallo("E_DIV_ZERO", "Division por cero.");
     return ControlarRango(dividendo / divisor);
 }
+
+
+#endif
+/* Version corregida. */
+
 
 //6.2 minum operando
 ResultadoSem SemNegar(int64_t operando){
@@ -137,6 +187,9 @@ ResultadoSem SemDuplicar(int64_t operando){
 }
 
 //tabla seccion 2.1, aca ponemos el indice como digito
+/* PROBLEMA: la conversion de salida usaba otra correspondencia para los digitos 4 a 9.
+ * Se conserva intacta la version recibida; la correccion esta debajo. */
+#if 0
 static const char *const digitos[10] = {
     "mew",        
     "bulbasaur",  
@@ -148,6 +201,15 @@ static const char *const digitos[10] = {
     "charmander",
     "charmeleon",
     "charizard"
+};
+
+
+#endif
+/* Version corregida. */
+
+static const char *const digitos[10] = {
+    "mew", "bulbasaur", "ivysaur", "venusaur", "charmander",
+    "charmeleon", "charizard", "squirtle", "wartortle", "blastoise"
 };
 
 //este metodo que usamos aca es similar al de itoa en el K&R 3.6
@@ -181,3 +243,8 @@ void SemAPokemon(int64_t valor, char *destino, size_t tamanio){
 }
 
 
+
+/* Agregado: la tabla no se comparte entre sesiones independientes. */
+void SemReset(void) {
+    memset(tabla, 0, sizeof tabla);
+}
