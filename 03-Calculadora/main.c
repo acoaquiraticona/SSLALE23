@@ -1,97 +1,57 @@
-/**
- * @file main.c
- * @brief Inicio del intérprete y preparación de los flujos de entrada y salida.
- *
- * Este archivo traduce los argumentos del proceso a una opción del parser,
- * prepara las particularidades de cada plataforma y conserva un estado de
- * salida coherente ante errores de escritura. La interpretación del lenguaje
- * pertenece a ParserRun(); los registros se formatean en el módulo errors.
- */
-#include "Parser.h"
-#include "errors.h"
+#include "Parser.h" // El main debe conocer al Parser...
+#include "errors.h" // ...y a los errores, para poder reportarlos.
 
-#include <signal.h>
-#include <stdio.h>
-#include <string.h>
-#ifdef _WIN32
-#include <fcntl.h>
-#include <io.h>
+#include <signal.h> // Uso de SIGPIPE para evitar terminar por senal al escribir en un pipe cerrado.
+#include <stdio.h> // Uso de fflush para asegurar que la salida se escriba antes de terminar.
+#include <string.h> // Uso de strcmp para validar argumentos.
+#ifdef _WIN32 // Uso de _setmode para que getchar y putchar vean todos los bytes sin traduccion.
+#include <fcntl.h> // Uso de _O_BINARY para configurar los flujos en modo binario.
+#include <io.h> // Uso de _setmode para configurar los flujos en modo binario.
 #endif
 
-/**
- * @brief Configura el entorno de ejecución e interpreta stdin hasta EOF.
- * @param argc Cantidad de argumentos, incluido el nombre del programa.
- * @param argv Argumentos; la única opción admitida es @c --trace.
- * @retval 0 La sesión terminó sin rechazar sentencias ni fallar los flujos.
- * @retval 1 Hubo errores recuperables de entrada y se alcanzó el fin de la sesión.
- * @retval 2 Hubo un error fatal, argumentos inválidos o un fallo de entrada/salida.
- *
- * Los resultados se escriben en stdout y los diagnósticos, INFO y trazas en
- * stderr. La configuración y el vaciado final también pueden elevar el estado
- * a 2, aunque las expresiones se hayan interpretado correctamente.
- */
+// @brief Programa principal de la calculadora Pokémon.
+// @param argc Cantidad de argumentos del ejecutable.
+// @param argv Vector de argumentos del ejecutable.
+// @return 0 si la entrada se procesó sin errores; 1 si hubo errores de sintaxis o semántica; 2 si hubo errores de E_IO, E_RESOURCE o
 int main(int argc, char **argv) {
-    /** La opción se acepta únicamente como argumento único. Cualquier otra
-     * combinación se rechaza antes de solicitar tokens o consumir stdin. */
-    bool trace = false;
-    SourcePosition sinPosicionDeFuente = {0, 0};
-    if (argc == 2) {
-        /* argv[1] solo se consulta si existe; strcmp devuelve cero si coincide. */
-        trace = strcmp(argv[1], "--trace") == 0;
-    }
+    bool trace = argc == 2 && strcmp(argv[1], "--trace") == 0;
 #ifdef _WIN32
-    /** Windows suele traducir LF a CRLF en flujos de texto. Preparar stderr
-     * primero conserva el formato de los registros incluso si los argumentos
-     * resultan inválidos y se informa E_USAGE inmediatamente. */
-    if (_setmode(_fileno(stderr), _O_BINARY) == -1) {
-        Diagnostic error = MakeDiagnostic(E_IO, sinPosicionDeFuente, "No se pudo configurar los flujos.");
-        ReportError(&error); /* & entrega la dirección del diagnóstico al módulo errors. */
+    /* Los registros terminan con LF, incluso para E_USAGE. */
+    if (_setmode(_fileno(stderr), _O_BINARY) == -1) { //
+        Diagnostic error = MakeDiagnostic(E_IO, (SourcePosition){0, 0}, "No se pudo configurar los flujos.");
+        ReportError(&error);
         return 2;
     }
 #endif
     if (argc != 1 && !trace) {
-        Diagnostic error = MakeDiagnostic(E_USAGE, sinPosicionDeFuente, "uso: pokecalc [--trace]");
+        Diagnostic error = MakeDiagnostic(E_USAGE, (SourcePosition){0, 0}, "uso: pokecalc [--trace]");
         ReportError(&error);
         return 2;
     }
 #ifdef _WIN32
-    /** Tras validar los argumentos, el modo binario permite que el scanner
-     * vea CR, LF y el resto de los bytes originales, sin traducciones de texto.
-     * stdout también usa LF para los resultados, igual que en otras plataformas. */
-    if (_setmode(_fileno(stdin), _O_BINARY) == -1) {
-        Diagnostic error = MakeDiagnostic(E_IO, sinPosicionDeFuente, "No se pudo configurar los flujos.");
-        ReportError(&error);
-        return 2;
-    }
-    if (_setmode(_fileno(stdout), _O_BINARY) == -1) {
-        Diagnostic error = MakeDiagnostic(E_IO, sinPosicionDeFuente, "No se pudo configurar los flujos.");
+    /* Solo se configura la entrada despues de validar los argumentos.
+     * getchar debe ver CR, LF y todos los demas bytes sin traduccion. */
+    if (_setmode(_fileno(stdin), _O_BINARY) == -1 ||
+        _setmode(_fileno(stdout), _O_BINARY) == -1) {
+        Diagnostic error = MakeDiagnostic(E_IO, (SourcePosition){0, 0}, "No se pudo configurar los flujos.");
         ReportError(&error);
         return 2;
     }
 #endif
 #ifdef SIGPIPE
-    /** Si la plataforma dispone de SIGPIPE, ignorarla hace que una tubería
-     * cerrada se detecte al escribir. El intérprete puede entonces informar
-     * E_IO y devolver el mismo estado fatal que ante otros fallos de salida. */
+    /* Un pipe cerrado debe producir E_IO, sin terminar por una senal. */
     if (signal(SIGPIPE, SIG_IGN) == SIG_ERR) {
-        Diagnostic error = MakeDiagnostic(E_RESOURCE, sinPosicionDeFuente, "No se pudo configurar SIGPIPE.");
+        Diagnostic error = MakeDiagnostic(E_RESOURCE, (SourcePosition){0, 0}, "No se pudo configurar SIGPIPE.");
         ReportError(&error);
         return 2;
     }
 #endif
-    /** El parser administra su sesión y devuelve la gravedad acumulada.
-     * El vaciado final detecta fallos que un búfer pudiera haber diferido;
-     * cualquier fallo de stderr termina con 2, sin escribir otro error allí. */
     int estado = ParserRun(trace);
-    if (estado != 2) {
-        if (fflush(stdout) != 0) {
-            Diagnostic error = MakeDiagnostic(E_IO, sinPosicionDeFuente, "Fallo al cerrar la salida estandar.");
-            ReportError(&error);
-            estado = 2;
-        }
-    }
-    if (fflush(stderr) != 0) {
+    if (estado != 2 && fflush(stdout) != 0) {
+        Diagnostic error = MakeDiagnostic(E_IO, (SourcePosition){0, 0}, "Fallo al cerrar la salida estandar.");
+        ReportError(&error);
         estado = 2;
     }
+    if (fflush(stderr) != 0) estado = 2;
     return estado;
 }

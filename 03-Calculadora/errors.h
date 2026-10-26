@@ -104,15 +104,6 @@ typedef struct {
 const char *ErrorCodeName(ErrorCode codigo);
 
 /**
- * @brief Adapta los códigos textuales anteriores al catálogo común.
- * @param nombre Nombre exacto terminado en NUL; se admite NULL.
- * @return Código correspondiente, o E_RESOURCE si nombre es NULL o desconocido.
- * @details La comparación distingue mayúsculas y conserva compatibilidad con
- * los campos de texto de Scanner y Semantics, sin mantener otro catálogo.
- */
-ErrorCode ErrorCodeFromName(const char *nombre);
-
-/**
  * @brief Construye un diagnóstico y conserva su mensaje en un búfer propio.
  * @param codigo Causa del catálogo común.
  * @param posicion Inicio del problema o {0, 0} si no existe ubicación en la fuente.

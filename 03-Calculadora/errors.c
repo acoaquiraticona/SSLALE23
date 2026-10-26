@@ -19,8 +19,8 @@
 
 /**
  * @brief Nombres indexados en el mismo orden que ErrorCode, incluido E_NONE.
- * @details Ambas conversiones usan esta tabla para conservar una sola
- * correspondencia entre el código interno y su representación externa.
+ * @details ErrorCodeName usa esta tabla para obtener la representación externa
+ * de cada código interno sin mantener copias del nombre en los diagnósticos.
  */
 static const char *const nombresDeErrores[] = {
     "E_NONE", "E_MISSINGNO", "E_LEXICAL", "E_LIMIT", "E_SYNTAX",
@@ -40,29 +40,6 @@ const char *ErrorCodeName(ErrorCode codigo) {
         return "E_RESOURCE";
     }
     return nombresDeErrores[codigo];
-}
-
-/**
- * @brief Busca un nombre textual completo en el catálogo compartido.
- * @param nombre Texto terminado en NUL o NULL.
- * @return Código exacto o E_RESOURCE como alternativa para nombres desconocidos.
- */
-ErrorCode ErrorCodeFromName(const char *nombre) {
-    if (nombre == NULL) {
-        return E_RESOURCE;
-    }
-
-    /* sizeof mide bytes. Dividir el tamaño del arreglo por el de un elemento
-     * da su cantidad de elementos; aquí ambos tamaños provienen del arreglo
-     * completo, no de un puntero recibido como parámetro. */
-    const size_t cantidadDeCodigos = sizeof nombresDeErrores / sizeof nombresDeErrores[0];
-    for (size_t indice = 0; indice < cantidadDeCodigos; ++indice) {
-        if (strcmp(nombre, nombresDeErrores[indice]) == 0) {
-            /* La posición de cada nombre coincide con el valor de su enum. */
-            return (ErrorCode)indice;
-        }
-    }
-    return E_RESOURCE;
 }
 
 /**

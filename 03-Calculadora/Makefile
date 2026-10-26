@@ -1,42 +1,8 @@
 # @file Makefile
 # @brief Compilación por módulos y ejecución de las cinco suites de pruebas.
 #
-# Las reglas activas están después de endif. El bloque ifeq (0,1) conserva
-# la configuración histórica y no se evalúa como parte de la construcción.
 # Cada archivo fuente genera su objeto en .build; el enlace reúne esos objetos
 # en pokecalc. Las opciones pueden reemplazarse desde la línea de comandos.
-#
-# PROBLEMA: faltaban errors, pruebas, dependencias y el ejecutable pokecalc.
-# Makefile recibido conservado sin cambios; version corregida debajo.
-ifeq (0,1)
-CC ?= cc
-CFLAGS ?= -std=c23 -Wall -Wextra -Wpedantic
-
-EXECUTABLE = calc
-OBJECTS = main.o Parser.o Scanner.o Semantics.o
-
-.PHONY: all clean
-
-all: $(EXECUTABLE)
-
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(CFLAGS) $^ -o $@
-
-main.o: main.c Parser.h Semantics.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-Parser.o: Parser.c Parser.h Scanner.h 
-	$(CC) $(CFLAGS) -c $< -o $@
-
-Scanner.o: Scanner.c Scanner.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-Semantics.o:Semantics.c Semantics.h
-	$(CC) $(CFLAGS) -c $< -o $@
-
-clean:
-	$(RM) $(OBJECTS) $(EXECUTABLE)	
-endif
 
 CC ?= cc
 # La prueba de capacidad consulta al compilador sin generar un ejecutable:
@@ -51,7 +17,7 @@ LDLIBS ?=
 EXECUTABLE := pokecalc
 # SOURCES determina los objetos mediante sustitución de sufijo. TESTS enumera
 # los ejecutables de prueba que necesita el objetivo test, no los del programa.
-SOURCES := main.c Parser.c Scanner.c Semantics.c errors.c error.c
+SOURCES := main.c Parser.c Scanner.c Semantics.c errors.c
 OBJECTS := $(SOURCES:%.c=.build/%.o)
 TESTS := .build/semantics_test .build/scanner_test .build/errors_test .build/parser_test .build/acceptance_test
 
@@ -74,10 +40,10 @@ $(EXECUTABLE): $(OBJECTS)
 # Cada suite enlaza solo lo que necesita. parser_test aporta un scanner simulado;
 # acceptance_test ejecuta pokecalc como proceso externo. -UNDEBUG mantiene activos
 # los assert incluso cuando las opciones generales definan NDEBUG.
-.build/semantics_test: tests/semantics_test.c tests/test_support.h .build/Semantics.o .build/errors.o $(wildcard *.h)
+.build/semantics_test: tests/semantics_test.c tests/test_support.h Semantics.h errors.h .build/Semantics.o .build/errors.o
 	$(CC) $(CPPFLAGS) -I. $(CFLAGS) -UNDEBUG $(LDFLAGS) $< .build/Semantics.o .build/errors.o $(LDLIBS) -o $@
 
-.build/scanner_test: tests/scanner_test.c tests/test_support.h .build/Scanner.o .build/errors.o $(wildcard *.h)
+.build/scanner_test: tests/scanner_test.c tests/test_support.h Scanner.h errors.h .build/Scanner.o .build/errors.o
 	$(CC) $(CPPFLAGS) -I. $(CFLAGS) -UNDEBUG $(LDFLAGS) $< .build/Scanner.o .build/errors.o $(LDLIBS) -o $@
 
 .build/errors_test: tests/errors_test.c tests/test_support.h .build/errors.o errors.h | .build
@@ -86,7 +52,7 @@ $(EXECUTABLE): $(OBJECTS)
 .build/acceptance_test: tests/acceptance_test.c tests/casos.h tests/test_support.h | .build
 	$(CC) $(CPPFLAGS) -I. $(CFLAGS) -UNDEBUG $(LDFLAGS) $< $(LDLIBS) -o $@
 
-.build/parser_test: tests/parser_test.c .build/Parser.o .build/Semantics.o .build/errors.o tests/test_support.h $(wildcard *.h)
+.build/parser_test: tests/parser_test.c tests/test_support.h Parser.h Scanner.h Semantics.h errors.h .build/Parser.o .build/Semantics.o .build/errors.o
 	$(CC) $(CPPFLAGS) -I. $(CFLAGS) -UNDEBUG $(LDFLAGS) $< .build/Parser.o .build/Semantics.o .build/errors.o $(LDLIBS) -o $@
 
 # Primero se construyen programa y pruebas; las suites se ejecutan en secuencia
@@ -98,9 +64,9 @@ test: $(EXECUTABLE) $(TESTS)
 	./.build/parser_test
 	./.build/acceptance_test
 
-# Elimina los artefactos actuales y los nombres heredados de compilaciones previas.
+# Elimina el directorio de compilación y el ejecutable de la plataforma.
 clean:
-	$(RM) -r .build $(EXECUTABLE) $(EXECUTABLE).exe calc calc.exe main.o Parser.o Scanner.o Semantics.o errors.o error.o
+	$(RM) -r .build $(EXECUTABLE) $(EXECUTABLE).exe
 
 # Las dependencias generadas permiten reconstruir un objeto al cambiar una
 # cabecera. El prefijo '-' permite la primera compilación, cuando aún no existen.

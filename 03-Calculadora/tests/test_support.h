@@ -122,14 +122,21 @@ static inline int TestExitCode(int estadoDelSistema) {
  *
  * Primero materializa la entrada en .build/entrada.txt. Luego la redirección
  * del intérprete de comandos separa resultados y registros en otros dos
- * archivos, para comprobar por separado valor, formato, errores y trazas.
+ * archivos, para comprobar por separado valor, formato, errores y trazas. La
+ * ruta del ejecutable se adapta a cmd.exe en Windows y al shell en POSIX.
  * @pre pokecalc y el directorio .build deben existir en el directorio actual.
  */
 static inline TestRunResult TestRun(const char *entrada, const char *argumentos) {
+#ifdef _WIN32
+    const char *rutaEjecutable = ".\\pokecalc.exe";
+#else
+    const char *rutaEjecutable = "./pokecalc";
+#endif
     TestWriteFile(".build/entrada.txt", entrada);
     char comando[256];
     int caracteresNecesarios = snprintf(comando, sizeof comando,
-                     "./pokecalc %s < .build/entrada.txt > .build/salida.txt 2> .build/registros.txt", argumentos);
+                     "%s %s < .build/entrada.txt > .build/salida.txt 2> .build/registros.txt",
+                     rutaEjecutable, argumentos);
     /* snprintf devuelve int, mientras sizeof devuelve size_t. El cast permite
      * comparar con la capacidad fija del arreglo usando el mismo tipo. */
     assert(caracteresNecesarios > 0 && caracteresNecesarios < (int)sizeof comando);

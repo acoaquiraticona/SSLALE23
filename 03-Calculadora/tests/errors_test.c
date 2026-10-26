@@ -64,14 +64,18 @@ int main(void) {
         "TRACE linea=6 columna=1 token=ERROR codigo=E_LEXICAL\n"
         "TRACE linea=6 columna=1 token=EOF\n"
         "ERROR codigo=E_USAGE mensaje=\"uso: pokecalc [--trace]\"\n");
-    /** El contrato externo admite ASCII imprimible y saltos de línea. Además,
-     * todos los códigos deben conservar identidad al convertirse a nombre y volver. */
+    /** El contrato externo admite ASCII imprimible y saltos de línea. */
     for (const unsigned char *byte = (const unsigned char *)text; *byte != '\0'; byte++) {
         assert(*byte == '\n' || (*byte >= 32 && *byte <= 126));
     }
     free(text);
-    for (int i = E_NONE; i <= E_USAGE; ++i) {
-        assert(ErrorCodeFromName(ErrorCodeName((ErrorCode)i)) == (ErrorCode)i);
+    /** Los nombres públicos del catálogo deben conservar su escritura exacta. */
+    static const char *const nombresEsperados[] = {
+        "E_NONE", "E_MISSINGNO", "E_LEXICAL", "E_LIMIT", "E_SYNTAX",
+        "E_UNDEFINED", "E_RANGE", "E_IO", "E_RESOURCE", "E_USAGE"
+    };
+    for (int codigo = E_NONE; codigo <= E_USAGE; ++codigo) {
+        TestEqual(ErrorCodeName((ErrorCode)codigo), nombresEsperados[codigo]);
     }
     /** Un detalle mayor que la capacidad interna conserva una marca visible de
      * recorte y la gravedad fatal asociada a la falta de recursos. */

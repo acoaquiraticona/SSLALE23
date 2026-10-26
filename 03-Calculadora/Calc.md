@@ -1156,11 +1156,13 @@ El token inválido `@` queda trazado durante el descarte y no genera otro regist
 
 El proyecto incluye un `Makefile` que permite compilar el programa y ejecutar automáticamente los casos de aceptación definidos en esta especificación.
 
-Desde la carpeta raíz del proyecto, ejecutá:
+Desde la carpeta `03-Calculadora`, ejecutá:
 
 ```bash
 make test
 ```
+
+El Makefile necesita un compilador C y herramientas de shell POSIX disponibles. En Windows se puede usar MSYS2; si se ejecuta desde PowerShell con esas herramientas en `PATH`, seleccioná el shell con `make SHELL=sh test`.
 
 Este comando compila el intérprete, ejecuta las pruebas, compara stdout, verifica los diagnósticos de stderr y comprueba el estado de salida del proceso.
 

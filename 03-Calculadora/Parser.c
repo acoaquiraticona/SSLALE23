@@ -16,6 +16,7 @@
 
 /* Implementacion de Calc.md 5-9. Un analizador por cada no terminal. */
 #include "Parser.h"
+#include "Scanner.h"
 #include "Semantics.h"
 #include "errors.h"
 

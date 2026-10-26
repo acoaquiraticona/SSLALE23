@@ -11,7 +11,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 #include <stdbool.h>
-#include "Scanner.h"
 /**
  * @brief Interpreta una sesión con una tabla de variables inicialmente vacía.
  *

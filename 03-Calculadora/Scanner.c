@@ -7,17 +7,12 @@
  * Token con sus atributos. El texto guardado tiene capacidad fija, pero el
  * scanner sigue consumiendo la unidad completa aunque ya no quepa su lexema.
  * Así, un recorte de diagnóstico no altera dónde comienza el token siguiente.
- *
- * @note Los bloques bajo #if 0 conservan implementaciones anteriores como
- * antecedente de las correcciones indicadas. No participan en la ejecución;
- * las explicaciones de las funciones describen las versiones activas.
  */
 #include "Scanner.h"
 
 #include <limits.h>
 #include <stdio.h>
 #include <string.h>
-#include <stdint.h>
 
 #define VALOR_MAXIMO INT64_C(999999) /**< Mayor natural representable en el lenguaje. */
 #define LONGITUD_MAXIMA_IDENTIFICADOR 31 /**< Límite del nombre de una variable. */
@@ -60,35 +55,6 @@ static int MirarCaracter(void) {
     }
     return caracterAnticipado;
 }
-
-/* PROBLEMA: el incremento de posiciones no controlaba el agotamiento de int.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-static int ConsumirCaracter(void) {
-    int caracter = MirarCaracter();
-    caracterAnticipado = -2;
-
-    if (caracter == '\r') {
-        lineaActual++;
-        columnaActual = 1;
-        anteriorFueCR = 1;
-    } else if (caracter == '\n') {
-        if (!anteriorFueCR) {
-            lineaActual++;
-        }
-        columnaActual = 1;
-        anteriorFueCR = 0;
-    } else if (caracter != EOF) {
-        columnaActual++;
-        anteriorFueCR = 0;
-    }
-
-    return caracter;
-}
-
-
-#endif
-/* Version corregida. */
 
 /**
  * @brief Consume la anticipación y actualiza la ubicación del próximo byte.
@@ -145,22 +111,6 @@ static Token CrearToken(TipoToken tipo, int linea, int columna) {
     return token;
 }
 
-/* PROBLEMA: faltaban los datos compartidos de errors.h y el detalle de la entrada invalida.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-static Token CrearError(const char *codigo, const char *detalle,
-                        const char *lexema, int linea, int columna) {
-    Token token = CrearToken(TOKEN_ERROR, linea, columna);
-    snprintf(token.codigo_error, sizeof token.codigo_error, "%s", codigo);
-    snprintf(token.detalle, sizeof token.detalle, "%s", detalle);
-    snprintf(token.lexema, sizeof token.lexema, "%s", lexema);
-    return token;
-}
-
-
-#endif
-/* Version corregida. */
-
 /**
  * @brief Empaqueta un error léxico o fatal en el contrato común de diagnósticos.
  * @param codigo Categoría del problema definida por errors.h.
@@ -168,9 +118,10 @@ static Token CrearError(const char *codigo, const char *detalle,
  * @param lexema Texto implicado, posiblemente abreviado y marcado como recortado.
  * @param linea Línea inicial de la unidad que falló.
  * @param columna Columna inicial de la unidad que falló.
- * @return TOKEN_ERROR con diagnóstico estructurado y copias textuales compatibles.
+ * @return TOKEN_ERROR con diagnóstico estructurado y muestra del lexema.
  * @details Adjunta el lexema al detalle para que el mensaje identifique la
- * entrada problemática. Las copias tienen capacidad acotada y terminación NUL.
+ * entrada problemática. El diagnóstico y el lexema tienen capacidad acotada
+ * y terminación NUL.
  */
 static Token CrearError(ErrorCode codigo, const char *detalle,
                        const char *lexema, int linea, int columna) {
@@ -179,8 +130,6 @@ static Token CrearError(ErrorCode codigo, const char *detalle,
     snprintf(mensaje, sizeof mensaje, "%s Entrada: \"%s\"", detalle, lexema);
     SourcePosition posicion = {linea, columna};
     token.diagnostico = MakeDiagnostic(codigo, posicion, mensaje);
-    snprintf(token.codigo_error, sizeof token.codigo_error, "%s", ErrorCodeName(codigo));
-    snprintf(token.detalle, sizeof token.detalle, "%s", token.diagnostico.detalle);
     snprintf(token.lexema, sizeof token.lexema, "%s", lexema);
     token.lexema_recortado = strstr(lexema, "(recortado)") != NULL;
     return token;
@@ -302,27 +251,6 @@ static TipoToken PalabraReservada(const char *palabra) {
     return TOKEN_IDENTIFIER;
 }
 
-/* PROBLEMA: la correspondencia de los digitos 4 a 9 no coincide con Calc.md 2.1.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-static int ObtenerDigitoPokemon(const char *palabra) {
-    if (strcmp(palabra, "mew") == 0) return 0;
-    if (strcmp(palabra, "bulbasaur") == 0) return 1;
-    if (strcmp(palabra, "ivysaur") == 0) return 2;
-    if (strcmp(palabra, "venusaur") == 0) return 3;
-    if (strcmp(palabra, "squirtle") == 0) return 4;
-    if (strcmp(palabra, "wartortle") == 0) return 5;
-    if (strcmp(palabra, "blastoise") == 0) return 6;
-    if (strcmp(palabra, "charmander") == 0) return 7;
-    if (strcmp(palabra, "charmeleon") == 0) return 8;
-    if (strcmp(palabra, "charizard") == 0) return 9;
-    return -1;
-}
-
-
-#endif
-/* Version corregida. */
-
 /**
  * @brief Convierte un nombre de Pokémon en su dígito decimal del lenguaje.
  * @param palabra Nombre completo terminado en NUL y escrito en minúsculas.
@@ -380,50 +308,6 @@ static void MarcarRecorte(char *texto, size_t capacidad, bool recortado) {
     }
 }
 
-/* PROBLEMA: el recorte del lexema se ocultaba y los errores no usaban el contrato comun.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-static Token LeerPalabra(void) {
-    char palabra[CAPACIDAD_LEXEMA] = "";
-    size_t longitud = 0;
-    int demasiadoLarga = 0;
-    int lineaInicio = lineaActual;
-    int columnaInicio = columnaActual;
-    int c;
-    TipoToken tipo;
-    Token token;
-
-    while (EsCaracterIdentificador(MirarCaracter())) {
-        c = ConsumirCaracter();
-        if (longitud < sizeof palabra - 1) {
-            AgregarCaracter(palabra, sizeof palabra, &longitud, c);
-        } else {
-            demasiadoLarga = 1;
-        }
-    }
-
-    if (demasiadoLarga || longitud > LONGITUD_MAXIMA_IDENTIFICADOR) {
-        return CrearError("E_LIMIT", "El identificador supera los 31 caracteres.",
-                          palabra, lineaInicio, columnaInicio);
-    }
-
-    tipo = PalabraReservada(palabra);
-    token = CrearToken(tipo, lineaInicio, columnaInicio);
-    snprintf(token.lexema, sizeof token.lexema, "%s", palabra);
-
-    if (tipo == TOKEN_IDENTIFIER && ObtenerDigitoPokemon(palabra) >= 0) {
-        return CrearError("E_MISSINGNO",
-                          "Un digito Pokemon debe escribirse entre corchetes.",
-                          palabra, lineaInicio, columnaInicio);
-    }
-
-    return token;
-}
-
-
-#endif
-/* Version corregida. */
-
 /**
  * @brief Lee una palabra completa y decide si es nombre, comando u operador.
  * @return Token de la palabra o error por longitud o por dígito Pokémon suelto.
@@ -455,117 +339,6 @@ static Token LeerPalabra(void) {
     snprintf(token.lexema, sizeof token.lexema, "%s", palabra);
     return token;
 }
-
-/* PROBLEMA: un literal valido se rechazaba por ocupar mas de 127 bytes; eso no es un limite del lenguaje. La conversion debe seguir sin desbordar y separar rango de forma lexica.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-/* Lee un literal entre corchetes. En un error conserva ;, CR, LF o EOF. */
-static Token LeerNumeroPokemon(void) {
-    char lexema[CAPACIDAD_LEXEMA] = "";
-    char palabra[CAPACIDAD_LEXEMA] = "";
-    size_t longitudLexema = 0;
-    size_t longitudPalabra;
-    int lineaInicio = lineaActual;
-    int columnaInicio = columnaActual;
-    int c, digito;
-    int cantidadDigitos = 0;
-    int invalido = 0;
-    int demasiadoLargo = 0;
-    int cerrado = 0;
-    int fueraDeRango = 0;
-    int64_t valor = 0;
-
-    c = ConsumirCaracter(); /* '[' */
-    AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-
-    while (1) {
-        while (EsEspacioHorizontal(MirarCaracter())) {
-            c = ConsumirCaracter();
-            AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-            if (longitudLexema >= sizeof lexema - 1) demasiadoLargo = 1;
-        }
-
-        c = MirarCaracter();
-        if (c == ']') {
-            c = ConsumirCaracter();
-            AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-            cerrado = 1;
-            break;
-        }
-
-        /* El delimitador queda disponible para el siguiente token. */
-        if (c == EOF || c == '\r' || c == '\n' || c == ';') {
-            break;
-        }
-
-        longitudPalabra = 0;
-        palabra[0] = '\0';
-        while (EsLetra(MirarCaracter())) {
-            c = ConsumirCaracter();
-            AgregarCaracter(palabra, sizeof palabra, &longitudPalabra, c);
-            AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-            if (longitudLexema >= sizeof lexema - 1) demasiadoLargo = 1;
-        }
-
-        if (longitudPalabra == 0) {
-            invalido = 1;
-            /* Avanza sobre el byte invalido para evitar bucles infinitos. */
-            c = MirarCaracter();
-            if (c != EOF && c != '\r' && c != '\n' && c != ';' && c != ']') {
-                c = ConsumirCaracter();
-                AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-                if (longitudLexema >= sizeof lexema - 1) demasiadoLargo = 1;
-            }
-            continue;
-        }
-
-        digito = ObtenerDigitoPokemon(palabra);
-        if (digito < 0) {
-            invalido = 1;
-        } else {
-            cantidadDigitos++;
-            if (valor > (INT64_MAX - digito) / 10) {
-                fueraDeRango = 1;
-                valor = INT64_MAX;
-            } else if (valor != INT64_MAX) {
-                valor = valor * 10 + digito;
-            }
-            if (valor > VALOR_MAXIMO) fueraDeRango = 1;
-        }
-
-        c = MirarCaracter();
-        if (!EsEspacioHorizontal(c) && c != ']' && c != EOF &&
-            c != '\r' && c != '\n' && c != ';') {
-            invalido = 1;
-        }
-    }
-
-    if (!cerrado) {
-        /* Consume el resto del literal mal formado, sin consumir el delimitador. */
-        while ((c = MirarCaracter()) != EOF && c != '\r' && c != '\n' && c != ';') {
-            c = ConsumirCaracter();
-            AgregarCaracter(lexema, sizeof lexema, &longitudLexema, c);
-            if (longitudLexema >= sizeof lexema - 1) demasiadoLargo = 1;
-        }
-        invalido = 1;
-    }
-
-    if (invalido || cantidadDigitos == 0 || demasiadoLargo) {
-        return CrearError("E_MISSINGNO",
-                          "Numero Pokemon mal formado; se esperaba una lista de digitos validos entre corchetes.",
-                          lexema, lineaInicio, columnaInicio);
-    }
-
-    Token token = CrearToken(TOKEN_NATURAL, lineaInicio, columnaInicio);
-    token.valor = valor;
-    token.fuera_de_rango = fueraDeRango;
-    snprintf(token.lexema, sizeof token.lexema, "%s", lexema);
-    return token;
-}
-
-
-#endif
-/* Version corregida. */
 
 /**
  * @brief Reconoce un natural como lista de dígitos Pokémon entre corchetes.
@@ -666,30 +439,6 @@ static Token LeerNumeroPokemon(void) {
     return token;
 }
 
-/* PROBLEMA: el recorte de numeros arabigos largos no se indicaba y faltaba el codigo comun.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-static Token LeerNumeroDecimal(void) {
-    char numero[CAPACIDAD_LEXEMA] = "";
-    size_t longitud = 0;
-    int lineaInicio = lineaActual;
-    int columnaInicio = columnaActual;
-    int c;
-
-    while (EsDigito(MirarCaracter())) {
-        c = ConsumirCaracter();
-        AgregarCaracter(numero, sizeof numero, &longitud, c);
-    }
-
-    return CrearError("E_MISSINGNO",
-                      "La representacion numerica decimal no esta permitida; use nombres Pokemon entre corchetes.",
-                      numero, lineaInicio, columnaInicio);
-}
-
-
-#endif
-/* Version corregida. */
-
 /**
  * @brief Agrupa una secuencia de cifras arábigas y la rechaza con E_MISSINGNO.
  * @return Token de error situado en la primera cifra, con muestra del texto.
@@ -709,65 +458,6 @@ static Token LeerNumeroDecimal(void) {
     MarcarRecorte(numero, sizeof numero, recortado);
     return CrearError(E_MISSINGNO, "Los numeros arabigos no estan permitidos.", numero, linea, columna);
 }
-
-/* PROBLEMA: un fallo de lectura durante un token podia aparecer como error lexico antes del fatal; faltaba reinicializacion y uso de diagnosticos comunes.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-Token GetNextToken(void) {
-    int c;
-    int lineaInicio, columnaInicio;
-    Token token;
-
-    OmitirEspaciosYComentarios();
-    c = MirarCaracter();
-    lineaInicio = lineaActual;
-    columnaInicio = columnaActual;
-
-    if (c == EOF) {
-        if (ferror(stdin) && !errorLecturaInformado) {
-            errorLecturaInformado = 1;
-            return CrearError("E_IO", "Fallo al leer la entrada estandar.", "",
-                              lineaInicio, columnaInicio);
-        }
-        return CrearToken(TOKEN_EOF, lineaInicio, columnaInicio);
-    }
-
-    if (EsInicioIdentificador(c)) return LeerPalabra();
-    if (c == '[') return LeerNumeroPokemon();
-    if (EsDigito(c)) return LeerNumeroDecimal();
-
-    switch (c) {
-        case '=':
-            ConsumirCaracter();
-            token = CrearToken(TOKEN_EQUAL, lineaInicio, columnaInicio);
-            strcpy(token.lexema, "=");
-            return token;
-        case ';':
-            ConsumirCaracter();
-            token = CrearToken(TOKEN_SEMICOLON, lineaInicio, columnaInicio);
-            strcpy(token.lexema, ";");
-            return token;
-        case '(':
-            ConsumirCaracter();
-            token = CrearToken(TOKEN_LPAREN, lineaInicio, columnaInicio);
-            strcpy(token.lexema, "(");
-            return token;
-        case ')':
-            ConsumirCaracter();
-            token = CrearToken(TOKEN_RPAREN, lineaInicio, columnaInicio);
-            strcpy(token.lexema, ")");
-            return token;
-        default: {
-            char simbolo[2] = { (char)c, '\0' };
-            ConsumirCaracter();
-            return CrearError("E_LEXICAL", "Byte no reconocido por el scanner.",
-                              simbolo, lineaInicio, columnaInicio);
-        }
-    }
-}
-
-#endif
-/* Version corregida. */
 
 /**
  * @brief Coordina el reconocimiento de una unidad léxica y sus fallos de lectura.
@@ -889,4 +579,3 @@ const char *ScannerTokenName(TipoToken tipo) {
             return "ERROR";
     }
 }
-

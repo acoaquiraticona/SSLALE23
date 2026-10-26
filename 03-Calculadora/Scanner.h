@@ -42,8 +42,7 @@ typedef enum {
  * Los campos se inicializan a cero al crear el token y se completan según tipo.
  * Para TOKEN_NATURAL, valor sólo representa el número completo si
  * fuera_de_rango es false. Para TOKEN_ERROR, diagnostico es la descripción
- * estructurada que comparten los módulos; codigo_error y detalle conservan
- * copias de texto por compatibilidad.
+ * estructurada que comparten los módulos e incluye código, posición y detalle.
  *
  * Los arreglos de char guardan cadenas de C: el byte '\0' marca su final.
  * Sus capacidades incluyen ese terminador, de modo que lexema, por ejemplo,
@@ -57,12 +56,9 @@ typedef struct {
     int64_t valor;        /**< Acumulador decimal del literal Pokémon. */
     bool fuera_de_rango; /**< Indica un natural mayor que 999999, aunque su forma sea válida. */
 
-    /* Datos comunes; se conservan los campos de texto anteriores como espejos. */
     Diagnostic diagnostico; /**< Código, posición y detalle común de un error. */
     bool lexema_recortado;  /**< El texto guardado es una muestra abreviada del lexema real. */
     char lexema[128];       /**< Texto reconocido, terminado en NUL; incluye marca si se recorta. */
-    char codigo_error[32];  /**< Nombre textual del código, por ejemplo E_MISSINGNO. */
-    char detalle[256];      /**< Copia del detalle de diagnostico para consumidores anteriores. */
 } Token;
 
 /**

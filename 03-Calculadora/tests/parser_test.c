@@ -8,6 +8,7 @@
  * semántica real permite inspeccionar los efectos confirmados de las sentencias.
  */
 #include "Parser.h"
+#include "Scanner.h"
 #include "Semantics.h"
 #include "test_support.h"
 

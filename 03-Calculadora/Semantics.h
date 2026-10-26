@@ -39,9 +39,7 @@
 typedef struct {
     bool ok;                    /**< Indica si la operación fue aceptada. */
     int64_t valor;               /**< Resultado utilizable cuando @c ok es true. */
-    const char *codigo;          /**< Nombre estático del error; NULL en un éxito. */
     Diagnostic diagnostico;     /**< Error común compartido con scanner y parser. */
-    char detalle[96];            /**< Copia acotada del mensaje para compatibilidad. */
 }ResultadoSem;
 
 /**
@@ -133,8 +131,4 @@ void SemReset(void);
  * y la termina en nulo cuando la capacidad es positiva; no se informa el recorte.
  */
 void SemAPokemon(int64_t valor, char *destino, size_t tamanio);
-
-
-
-
 #endif
