@@ -1,4 +1,14 @@
+# @file expresiones.txt
+# @brief Sesión de ejemplo para enviar a la entrada estándar de pokecalc.
+# Cada nombre entre corchetes representa un dígito decimal. El scanner omite
+# estos comentarios y el parser interpreta las sentencias terminadas en ';'.
+
+# captura crea energia con 2 + 3 * 2 = 8. La multiplicación tiene mayor
+# precedencia que la suma; la variable se guarda al validar la sentencia.
 captura energia = [ivysaur] plusle [venusaur] tandemaus [ivysaur];
+# Una expresión sola muestra su resultado: [wartortle] (8).
 energia;
+# ditto duplica el valor consultado sin reasignarlo: [bulbasaur charizard] (16).
 ditto(energia);
+# liberar elimina la variable y deja su lugar disponible para otro nombre.
 liberar energia;

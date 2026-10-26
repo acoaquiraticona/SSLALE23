@@ -1,32 +1,57 @@
-/* El escritor se prueba directamente, con controles y UTF-8 sin normalizar. */
+/**
+ * @file errors_test.c
+ * @brief Pruebas unitarias de diagnósticos y del formato de registros en stderr.
+ *
+ * Se invoca directamente el módulo errors para aislarlo del scanner y parser.
+ * La salida esperada permite comprobar escapes de bytes, campos opcionales,
+ * gravedad de errores, trazas y recorte explícito de mensajes extensos.
+ */
 #include "errors.h"
 #include "test_support.h"
 
+/**
+ * @brief Ejecuta las comprobaciones del contrato común de errores y registros.
+ * @return Cero si todas las aserciones se cumplen.
+ *
+ * stderr se redirige a un archivo binario para comparar los bytes escritos,
+ * incluidos los escapes que representan controles y texto UTF-8 de la entrada.
+ */
 int main(void) {
     assert(freopen(".build/errors-output.txt", "wb", stderr) != NULL);
-    Diagnostic d = MakeDiagnostic(E_MISSINGNO, (SourcePosition){2, 4},
-                                  "causa \303\251\n\r\t\\\"\001\177");
-    assert(d.gravedad == ERROR_RECOVERABLE);
-    assert(ReportError(&d));
+    /** Un error recuperable y los tres tipos de INFO ejercitan los campos de
+     * posición, variable y valor que corresponde incluir en cada registro. */
+    Diagnostic diagnostico = MakeDiagnostic(E_MISSINGNO, (SourcePosition){2, 4},
+                                            "causa \303\251\n\r\t\\\"\001\177");
+    assert(diagnostico.gravedad == ERROR_RECOVERABLE);
+    assert(ReportError(&diagnostico));
     assert(ReportInfo((SourcePosition){3, 1}, INFO_ASIGNACION, "energia", -2));
     assert(ReportInfo((SourcePosition){4, 1}, INFO_EVALUACION, NULL, 0));
     assert(ReportInfo((SourcePosition){5, 1}, INFO_LIBERACION, "energia", 0));
-    TraceRecord t = {0};
-    t.posicion = (SourcePosition){6, 1};
-    t.clase = "NATURAL";
-    t.atributo = TRACE_NATURAL;
-    t.valor = 999999;
-    assert(ReportTrace(&t));
-    t.fuera_de_rango = true;
-    assert(ReportTrace(&t));
-    t.clase = "IDENTIFIER"; t.atributo = TRACE_IDENTIFIER; t.nombre = "energia";
-    assert(ReportTrace(&t));
-    t.clase = "ERROR"; t.atributo = TRACE_ERROR; t.codigo = E_LEXICAL;
-    assert(ReportTrace(&t));
-    t.clase = "EOF"; t.atributo = TRACE_NONE;
-    assert(ReportTrace(&t));
-    d = MakeDiagnostic(E_USAGE, (SourcePosition){0, 0}, "uso: pokecalc [--trace]");
-    assert(d.gravedad == ERROR_FATAL && ReportError(&d));
+    /** La misma estructura de traza cambia de atributo: natural representable,
+     * natural fuera de rango, identificador, error y token sin atributo. */
+    TraceRecord traza = {0};
+    traza.posicion = (SourcePosition){6, 1};
+    traza.clase = "NATURAL";
+    traza.atributo = TRACE_NATURAL;
+    traza.valor = 999999;
+    assert(ReportTrace(&traza));
+    traza.fuera_de_rango = true;
+    assert(ReportTrace(&traza));
+    traza.clase = "IDENTIFIER";
+    traza.atributo = TRACE_IDENTIFIER;
+    traza.nombre = "energia";
+    assert(ReportTrace(&traza));
+    traza.clase = "ERROR";
+    traza.atributo = TRACE_ERROR;
+    traza.codigo = E_LEXICAL;
+    assert(ReportTrace(&traza));
+    traza.clase = "EOF";
+    traza.atributo = TRACE_NONE;
+    assert(ReportTrace(&traza));
+    /** Los fallos de uso son fatales y carecen de una posición en la fuente.
+     * La comparación conjunta también fija el orden y formato de las líneas. */
+    diagnostico = MakeDiagnostic(E_USAGE, (SourcePosition){0, 0}, "uso: pokecalc [--trace]");
+    assert(diagnostico.gravedad == ERROR_FATAL && ReportError(&diagnostico));
     char *text = TestReadFile(".build/errors-output.txt");
     TestEqual(text,
         "ERROR linea=2 columna=4 codigo=E_MISSINGNO mensaje=\"causa \\xC3\\xA9\\n\\r\\t\\\\\\\"\\x01\\x7F\"\n"
@@ -39,15 +64,22 @@ int main(void) {
         "TRACE linea=6 columna=1 token=ERROR codigo=E_LEXICAL\n"
         "TRACE linea=6 columna=1 token=EOF\n"
         "ERROR codigo=E_USAGE mensaje=\"uso: pokecalc [--trace]\"\n");
-    for (const unsigned char *p = (const unsigned char *)text; *p; ++p)
-        assert(*p == '\n' || (*p >= 32 && *p <= 126));
+    /** El contrato externo admite ASCII imprimible y saltos de línea. Además,
+     * todos los códigos deben conservar identidad al convertirse a nombre y volver. */
+    for (const unsigned char *byte = (const unsigned char *)text; *byte != '\0'; byte++) {
+        assert(*byte == '\n' || (*byte >= 32 && *byte <= 126));
+    }
     free(text);
-    for (int i = E_NONE; i <= E_USAGE; ++i)
+    for (int i = E_NONE; i <= E_USAGE; ++i) {
         assert(ErrorCodeFromName(ErrorCodeName((ErrorCode)i)) == (ErrorCode)i);
+    }
+    /** Un detalle mayor que la capacidad interna conserva una marca visible de
+     * recorte y la gravedad fatal asociada a la falta de recursos. */
     char detail[1000];
-    memset(detail, 'x', sizeof detail - 1); detail[sizeof detail - 1] = 0;
-    d = MakeDiagnostic(E_RESOURCE, (SourcePosition){1, 1}, detail);
-    assert(strstr(d.detalle, "(recortado)") != NULL && d.gravedad == ERROR_FATAL);
+    memset(detail, 'x', sizeof detail - 1);
+    detail[sizeof detail - 1] = '\0';
+    diagnostico = MakeDiagnostic(E_RESOURCE, (SourcePosition){1, 1}, detail);
+    assert(strstr(diagnostico.detalle, "(recortado)") != NULL && diagnostico.gravedad == ERROR_FATAL);
     puts("errors: assert OK");
     return 0;
 }

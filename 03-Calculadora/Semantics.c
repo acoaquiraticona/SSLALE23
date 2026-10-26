@@ -1,27 +1,46 @@
+/**
+ * @file Semantics.c
+ * @brief Evaluación aritmética y tabla de símbolos de capacidad fija.
+ *
+ * Las funciones no conocen tokens ni posiciones de entrada: reciben valores
+ * ya reconocidos y devuelven ResultadoSem. La separación permite probar las
+ * reglas semánticas sin ejecutar el parser. Las versiones de código en
+ * bloques deshabilitados por el preprocesador son antecedentes conservados
+ * y no participan en la compilación.
+ */
 #include "Semantics.h"
  
 #include <stdio.h>
 #include <string.h>
  
+/** @brief Una celda reutilizable de la tabla de variables de la sesión. */
 typedef struct {
-    bool ocupada;
-    char nombre[SEM_MAX_NOMBRE + 1];  // le sumamos uno por el /0
-    int64_t valor;
+    bool ocupada;                       /**< Determina si el nombre está vigente. */
+    char nombre[SEM_MAX_NOMBRE + 1];     /**< Identificador y su terminador nulo. */
+    int64_t valor;                      /**< Último valor asignado con éxito. */
 } Variable;
  
+/**
+ * @brief Almacenamiento privado, sin memoria dinámica, de hasta 32 variables.
+ * Las búsquedas recorren el arreglo; una celda libre puede conservar bytes
+ * antiguos, pero estos no se consultan mientras @c ocupada sea false.
+ */
 static Variable tabla[SEM_MAX_VARIABLES];
  
  
-// armamos el resultado correcto
-static ResultadoSem Exito(int64_t valor){
-    ResultadoSem resultado = {0};
+/**
+ * @brief Construye un resultado exitoso con el resto de los campos en cero.
+ * @param valor Entero producido o recuperado por la operación.
+ * @return Resultado con @c ok activo y sin diagnóstico de fallo.
+ */
+static ResultadoSem Exito(int64_t valor) {
+    ResultadoSem resultado = {0}; /* Inicializa todos los campos, incluidos los no usados. */
  
     resultado.ok = true;
     resultado.valor = valor;
     return resultado;
 }
  
-// Aca armamos el resultado fallido
 /* PROBLEMA: el resultado no contenia la representacion compartida de errors.h.
  * Se conserva intacta la version recibida; la correccion esta debajo. */
 #if 0
@@ -38,16 +57,28 @@ static ResultadoSem Fallo(const char *codigo, const char *detalle){
 #endif
 /* Version corregida. */
 
+/**
+ * @brief Unifica la representación de un fallo semántico.
+ * @param codigo Nombre de un código reconocido por el módulo de diagnósticos.
+ * @param detalle Explicación del rechazo terminada en nulo.
+ * @return Resultado fallido con diagnóstico común y campos de compatibilidad.
+ *
+ * La posición queda en {0, 0}; corresponde al parser asociar el error con la
+ * fuente. Los mensajes se copian en los búferes del resultado, mientras que
+ * el nombre del código apunta a una cadena estática del módulo errors.
+ */
 static ResultadoSem Fallo(const char *codigo, const char *detalle) {
     ResultadoSem resultado = {0};
+    ErrorCode codigoError = ErrorCodeFromName(codigo);
+    SourcePosition sinPosicionDeFuente = {0, 0};
+
     resultado.ok = false;
-    resultado.diagnostico = MakeDiagnostic(ErrorCodeFromName(codigo), (SourcePosition){0, 0}, detalle);
+    resultado.diagnostico = MakeDiagnostic(codigoError, sinPosicionDeFuente, detalle);
     resultado.codigo = ErrorCodeName(resultado.diagnostico.codigo);
     snprintf(resultado.detalle, sizeof resultado.detalle, "%s", detalle);
     return resultado;
 }
 
-// Fallo con E_undefined para la variable
 /* PROBLEMA: el detalle debe quedar tambien en el diagnostico comun, no solo en el campo anterior.
  * Se conserva intacta la version recibida; la correccion esta debajo. */
 #if 0
@@ -62,71 +93,101 @@ static ResultadoSem NoExiste(const char *nombre){
 #endif
 /* Version corregida. */
 
+/**
+ * @brief Incluye el identificador ausente en un diagnóstico E_UNDEFINED.
+ * @param nombre Variable que no se encontró en una entrada ocupada.
+ * @return Fallo compartido por la consulta y la liberación de variables.
+ */
 static ResultadoSem NoExiste(const char *nombre) {
     char detalle[96];
     snprintf(detalle, sizeof detalle, "La variable %s no existe.", nombre);
     return Fallo("E_UNDEFINED", detalle);
 }
 
-//Buscamos la el nombre de la variable, si la encuentra nos da el puntero sino NULL
-static Variable *Buscar(const char *nombre){
-    for (int lugar = 0; lugar < SEM_MAX_VARIABLES; lugar++)
-        if (tabla[lugar].ocupada && strcmp(tabla[lugar].nombre, nombre) == 0)
-            return &tabla[lugar];
+/**
+ * @brief Busca por nombre únicamente entre las entradas ocupadas.
+ * @param nombre Identificador comparado literalmente, con distinción de mayúsculas.
+ * @return Puntero a la celda interna o NULL si no existe.
+ */
+static Variable *Buscar(const char *nombre) {
+    for (int lugar = 0; lugar < SEM_MAX_VARIABLES; lugar++) {
+        /* strcmp devuelve cero cuando las dos cadenas son iguales. */
+        if (tabla[lugar].ocupada && strcmp(tabla[lugar].nombre, nombre) == 0) {
+            return &tabla[lugar]; /* & devuelve la dirección de la celda original. */
+        }
+    }
     return NULL;
 }
  
-//evuelve el primer lugar libre, o NULL si la tabla esta llena. */
-static Variable *LugarLibre(void){
-    for (int lugar = 0; lugar < SEM_MAX_VARIABLES; lugar++)
-        if (!tabla[lugar].ocupada)
+/**
+ * @brief Localiza una celda disponible sin modificarla ni reservar memoria.
+ * @return Primera entrada desocupada o NULL cuando se alcanzó la capacidad.
+ */
+static Variable *LugarLibre(void) {
+    for (int lugar = 0; lugar < SEM_MAX_VARIABLES; lugar++) {
+        if (!tabla[lugar].ocupada) {
             return &tabla[lugar];
+        }
+    }
     return NULL;
 }
 
-//6.2 Identifcadores
-//Consultamos el valor en la tabla de simbolos
-ResultadoSem SemVariable(const char *nombre){
+/** @brief Resuelve el identificador en la tabla o construye el error de ausencia. */
+ResultadoSem SemVariable(const char *nombre) {
     const Variable *variable = Buscar(nombre);
  
-    if (variable == NULL)
+    if (variable == NULL) {
         return NoExiste(nombre);
+    }
     return Exito(variable->valor);
 }
 
-//6.3 captura el parser la llama despues de leer el ';', asi si la sentencia falla la tabla no cambia
-ResultadoSem SemAsignar(const char *nombre, int64_t valor){
+/** @brief Guarda un valor validado, reutilizando una variable o una celda libre. */
+ResultadoSem SemAsignar(const char *nombre, int64_t valor) {
+    /* El puntero permite modificar la celda de la tabla, sin copiarla. */
     Variable *variable = Buscar(nombre);
  
-    if (variable == NULL) {   //nombre nuevo, hay que crearlo 
+    /** Un nombre nuevo necesita capacidad; el fallo ocurre antes de cambiar
+     * la tabla. Para una reasignación se conserva la misma celda. */
+    if (variable == NULL) {
         variable = LugarLibre();
-        if (variable == NULL)
+        if (variable == NULL) {
             return Fallo("E_LIMIT", "La tabla ya tiene 32 variables.");
-        variable->ocupada = true;
+        }
+        variable->ocupada = true; /* -> accede a un campo de la celda apuntada. */
         snprintf(variable->nombre, sizeof variable->nombre, "%s", nombre);
     }
-    variable->valor = valor;  //nuevo o existente entonces, guardar el valor 
+    variable->valor = valor;
     return Exito(valor);
 }
 
-//6.4 liberacio
-ResultadoSem SemLiberar(const char *nombre){
+/** @brief Marca como reutilizable la celda de una variable existente. */
+ResultadoSem SemLiberar(const char *nombre) {
     Variable *variable = Buscar(nombre);
  
-    if (variable == NULL)
+    if (variable == NULL) {
         return NoExiste(nombre);
+    }
     variable->ocupada = false;
     return Exito(0);
 }
 
-//6.1 Un literal o resultado intermedio fuera del dominio produce E_RANGE
-static ResultadoSem ControlarRango(int64_t valor){
-    if (valor < SEM_VALOR_MINIMO || valor > SEM_VALOR_MAXIMO)
+/**
+ * @brief Rechaza un resultado intermedio que excede el dominio del lenguaje.
+ * @param valor Resultado aritmético calculado en int64_t.
+ * @return Éxito con el valor o E_RANGE; no intenta corregir ni saturar el resultado.
+ *
+ * Los operandos válidos están acotados a seis dígitos, de modo que incluso
+ * su producto cabe en int64_t. El control posterior corresponde al dominio
+ * de la calculadora, más pequeño que el rango del tipo de C.
+ */
+static ResultadoSem ControlarRango(int64_t valor) {
+    if (valor < SEM_VALOR_MINIMO || valor > SEM_VALOR_MAXIMO) {
         return Fallo("E_RANGE", "El resultado esta fuera de [-999999, 999999].");
+    }
     return Exito(valor);
 }
 
-//6.2 fila natural
 /* PROBLEMA: tambien se debe verificar el dominio natural, aun si el llamador no marca fuera_de_rango.
  * Se conserva intacta la version recibida; la correccion esta debajo. */
 #if 0
@@ -140,53 +201,39 @@ ResultadoSem SemNatural(int64_t valor, bool fuera_de_rango){
 #endif
 /* Version corregida. */
 
+/** @brief Comprueba tanto la marca del scanner como el rango natural del valor. */
 ResultadoSem SemNatural(int64_t valor, bool fuera_de_rango) {
-    if (fuera_de_rango || valor < 0 || valor > SEM_VALOR_MAXIMO)
+    if (fuera_de_rango || valor < 0 || valor > SEM_VALOR_MAXIMO) {
         return Fallo("E_RANGE", "El literal esta fuera de [0, 999999].");
+    }
     return Exito(valor);
 }
 
-//6.2 primerSumando plusle segundoSumando
-ResultadoSem SemSumar(int64_t primerSumando, int64_t segundoSumando){
+/** @brief Calcula la suma y valida inmediatamente su resultado. */
+ResultadoSem SemSumar(int64_t primerSumando, int64_t segundoSumando) {
     return ControlarRango(primerSumando + segundoSumando);
 }
 
-// 6.2 minuendo minun sustraendo 
-ResultadoSem SemRestar(int64_t minuendo, int64_t sustraendo){
+/** @brief Calcula la diferencia manteniendo el orden de los operandos. */
+ResultadoSem SemRestar(int64_t minuendo, int64_t sustraendo) {
     return ControlarRango(minuendo - sustraendo);
 }
 
-// 6.2  multiplicando tandemaus multiplicador 
-ResultadoSem SemMultiplicar(int64_t multiplicando, int64_t multiplicador){
+/** @brief Calcula el producto en int64_t y comprueba el dominio del lenguaje. */
+ResultadoSem SemMultiplicar(int64_t multiplicando, int64_t multiplicador) {
     return ControlarRango(multiplicando * multiplicador);
 }
 
-/* PROBLEMA: la division y E_DIV_ZERO no estan especificados; no se habilitan en el interprete.
- * Se conserva intacta la version recibida; la correccion esta debajo. */
-#if 0
-//6.2 dividendo falinks divisor
-ResultadoSem SemDividir(int64_t dividendo, int64_t divisor){
-    if (divisor == 0)
-        return Fallo("E_DIV_ZERO", "Division por cero.");
-    return ControlarRango(dividendo / divisor);
-}
-
-
-#endif
-/* Version corregida. */
-
-
-//6.2 minum operando
-ResultadoSem SemNegar(int64_t operando){
+/** @brief Invierte el signo y pasa el resultado por el control común de rango. */
+ResultadoSem SemNegar(int64_t operando) {
     return ControlarRango(-operando);
 }
 
-// 6.2 ditto(operando) 
-ResultadoSem SemDuplicar(int64_t operando){
+/** @brief Multiplica por dos y rechaza el resultado si sale del dominio. */
+ResultadoSem SemDuplicar(int64_t operando) {
     return ControlarRango(2 * operando);
 }
 
-//tabla seccion 2.1, aca ponemos el indice como digito
 /* PROBLEMA: la conversion de salida usaba otra correspondencia para los digitos 4 a 9.
  * Se conserva intacta la version recibida; la correccion esta debajo. */
 #if 0
@@ -207,44 +254,69 @@ static const char *const digitos[10] = {
 #endif
 /* Version corregida. */
 
+/** @brief Correspondencia vigente: el índice decimal selecciona su nombre Pokémon. */
 static const char *const digitos[10] = {
     "mew", "bulbasaur", "ivysaur", "venusaur", "charmander",
     "charmeleon", "charizard", "squirtle", "wartortle", "blastoise"
 };
 
-//este metodo que usamos aca es similar al de itoa en el K&R 3.6
-void SemAPokemon(int64_t valor, char *destino, size_t tamanio){
-    int digitosAlReves[6];   //999999 tiene como maximo 6 digitos
+/** @brief Convierte la magnitud por divisiones sucesivas y luego emite sus nombres. */
+void SemAPokemon(int64_t valor, char *destino, size_t tamanio) {
+    int digitosAlReves[6];   /**< Hasta seis dígitos para un valor válido. */
     int cantidad = 0;
-    int64_t magnitud = (valor < 0) ? -valor : valor;
-    size_t escritos;   //caracteres ya escritos en destino
- 
-    // separamos los digitos del ultimo al primero
-    do {
-        digitosAlReves[cantidad++] = (int)(magnitud % 10);
-        magnitud /= 10;
-    } while (magnitud > 0 && cantidad < 6);
- 
-    // signo y corchete de apertura. 
-    escritos = (size_t)snprintf(destino, tamanio, "%s[",
-                             valor < 0 ? "minun " : "");
- 
-    //los nombres en el orden correcto separados por un espacio
-    while (cantidad > 0 && escritos < tamanio) {
-        cantidad--;
-        escritos += (size_t)snprintf(destino + escritos, tamanio - escritos, "%s%s",
-                                  digitos[digitosAlReves[cantidad]],
-                                  cantidad > 0 ? " " : "");
+    int64_t magnitud = valor;
+    const char *prefijo = "";
+    size_t escritos;   /**< Longitud que snprintf habría producido sin recortar. */
+
+    if (valor < 0) {
+        magnitud = -valor;
+        prefijo = "minun ";
     }
  
-    //corchete de cierre
-    if (escritos < tamanio)
+    /** La división entera extrae unidades, decenas y siguientes posiciones.
+     * Se guardan al revés para recorrerlas luego desde la más significativa.
+     * El do-while garantiza un dígito también para el valor cero. */
+    do {
+        int ultimoDigito = (int)(magnitud % 10); /* El resto entre 10 da las unidades. */
+        digitosAlReves[cantidad] = ultimoDigito;
+        cantidad++;
+        magnitud = magnitud / 10;
+    } while (magnitud > 0 && cantidad < 6);
+ 
+    /** La representación usa la magnitud y expresa el signo con un operador.
+     * snprintf permite contabilizar el espacio requerido aunque recorte. */
+    /* snprintf devuelve int; size_t es el tipo usado para tamaños de búferes. */
+    int longitudGenerada = snprintf(destino, tamanio, "%s[", prefijo);
+    escritos = (size_t)longitudGenerada;
+ 
+    /** Se recupera el orden original, separando los nombres con espacios.
+     * Solo se avanza dentro del destino si todavía queda capacidad. */
+    while (cantidad > 0 && escritos < tamanio) {
+        cantidad--;
+        int digito = digitosAlReves[cantidad];
+        const char *nombrePokemon = digitos[digito];
+        const char *separador = "";
+        if (cantidad > 0) {
+            separador = " ";
+        }
+
+        /* destino + escritos apunta al primer byte que todavía no se usó. */
+        size_t espacioDisponible = tamanio - escritos;
+        longitudGenerada = snprintf(destino + escritos, espacioDisponible,
+                                    "%s%s", nombrePokemon, separador);
+        escritos = escritos + (size_t)longitudGenerada;
+    }
+ 
+    /** El corchete de cierre se agrega únicamente si aún hay espacio. */
+    if (escritos < tamanio) {
         snprintf(destino + escritos, tamanio - escritos, "]");
+    }
 }
 
 
 
-/* Agregado: la tabla no se comparte entre sesiones independientes. */
+/** @brief Reinicia todas las celdas, incluidos sus indicadores de ocupación. */
 void SemReset(void) {
+    /* sizeof tabla cuenta todos los bytes del arreglo, no solo una variable. */
     memset(tabla, 0, sizeof tabla);
 }
