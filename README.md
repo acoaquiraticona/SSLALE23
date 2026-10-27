@@ -86,10 +86,55 @@
 │   │       ├── TestPokeArithmetic.c        # Pruebas de aritmética
 │   │       ├── TestPokeIntegracion.c       # Pruebas de integración
 │   │       └── TestPokeParser.c            # Pruebas del parser
-└──
+└── 03-Calculadora/                         # Trabajo Práctico N°3: Calculadora Pokémon
+    ├── Calc.md                            # Especificación del lenguaje y casos de aceptación
+    ├── Makefile                           # Compilación de pokecalc y ejecución de pruebas
+    ├── main.c                             # Punto de entrada y opción de traza --trace
+    ├── Scanner.c                          # Implementación del analizador léxico
+    ├── Scanner.h                          # Tokens e interfaz del analizador léxico
+    ├── Parser.c                           # Análisis sintáctico y coordinación del intérprete
+    ├── Parser.h                           # Interfaz del analizador sintáctico
+    ├── Semantics.c                        # Evaluación de expresiones y gestión de variables
+    ├── Semantics.h                        # Interfaz y límites del módulo semántico
+    ├── errors.c                           # Formato y emisión de diagnósticos y trazas
+    ├── errors.h                           # Códigos de error y tipos de diagnóstico
+    ├── expresiones.txt                    # Sesión de ejemplo para la entrada estándar
+    ├── tests/                             # Pruebas unitarias y de aceptación
+    │   ├── scanner_test.c                 # Reconocimiento de tokens y errores léxicos
+    │   ├── parser_test.c                  # Pruebas del parser con un scanner simulado
+    │   ├── semantics_test.c               # Operaciones, variables y límites numéricos
+    │   ├── errors_test.c                  # Formato de diagnósticos y registros
+    │   ├── acceptance_test.c              # Verificación del ejecutable, salidas y estados
+    │   ├── casos.h                        # Tabla de casos de aceptación
+    │   └── test_support.h                 # Utilidades compartidas por las pruebas
+    └── assets/                            # Imágenes utilizadas en Calc.md
+        ├── pokecalc-banner.png            # Banner de la calculadora
+        ├── comandos/                      # Ilustraciones de los comandos de variables
+        │   ├── captura.png
+        │   └── liberar.png
+        ├── errores/                       # Ilustración del error MissingNo
+        │   └── missigno.png
+        ├── operadores/                    # Ilustraciones de los operadores del lenguaje
+        │   ├── plusle.png
+        │   ├── minun.png
+        │   ├── tandemaus.png
+        │   └── ditto.png
+        └── pokemones/                     # Pokémon que representan los dígitos del 0 al 9
+            ├── 0_mew.png
+            ├── 1_bulbasaur.png
+            ├── 2_ivysaur.png
+            ├── 3_venusaur.png
+            ├── 4_charmander.png
+            ├── 5_charmeleon.png
+            ├── 6_charizard.png
+            ├── 7_squirtle.png
+            ├── 8_wartortle.png
+            └── 9_blastoise.png
 ```
 
-> Este repo agrupa los dos trabajos prácticos que vimos hasta ahora: el TP de cadenas y el TP de sumadores, cada uno con su propia estructura y archivos de documentación y pruebas.
+> Este repo agrupa tres trabajos prácticos: Strings, Sumadores y Calculadora Pokémon, cada uno con su propia estructura, documentación y archivos de implementación.
+
+> Nota: la calculadora no fue realizado en un fork debido a que la organizacion de SSL no lo permite.
 
 ---
 
@@ -107,11 +152,15 @@ Módulo de **conversión** entre tipos de datos y cadenas. Permite transformar c
 
 Serie de programas que esperan argumentos en su línea de comandos. Todos los programas envían su salida a stdout.
 
+### Calculadora Pokémon (`03-Calculadora/`)
+
+Intérprete modular en C que separa el análisis léxico (`Scanner`), el análisis sintáctico (`Parser`), la evaluación y gestión de variables (`Semantics`) y los diagnósticos (`errors`). Los nombres Pokémon representan dígitos decimales; el lenguaje permite sumar, restar, multiplicar, duplicar valores con `ditto` y administrar variables con `captura` y `liberar`.
+
 ---
 
 ## ⚙️ Compilación y Ejecución
 
-Este proyecto incluye un `Makefile` para simplificar la compilación. Desde la carpeta `01-Strings/`, ejecutar:
+Cada trabajo práctico incluye su propio `Makefile`. Desde la carpeta `01-Strings/`, ejecutar:
 
 ```bash
 # Compilar todos los módulos y programas
@@ -127,7 +176,28 @@ make test_conversion
 make clean
 ```
 
-> **Requisitos:** compilador `gcc` y utilidad `make` instalados en el sistema.
+Desde la carpeta `03-Calculadora/`, ejecutar:
+
+```bash
+# Compilar el intérprete
+make
+
+# Ejecutar la sesión de ejemplo
+./pokecalc < expresiones.txt
+
+# Ejecutar la misma sesión con traza de tokens en stderr
+./pokecalc --trace < expresiones.txt
+
+# Compilar y ejecutar las cinco suites de pruebas
+make test
+
+# Eliminar el ejecutable y los archivos generados en .build/
+make clean
+```
+
+La calculadora lee sentencias terminadas en `;` desde la entrada estándar. Los resultados se escriben en `stdout`; los diagnósticos, registros y trazas, en `stderr`.
+
+> **Requisitos:** compilador C y utilidad `make` instalados en el sistema. Para el TP3, el compilador debe admitir C23 (opción `-std=c23` o `-std=c2x`) y las pruebas requieren herramientas de shell POSIX; en Windows se puede usar MSYS2.
 
 ---
 
@@ -139,10 +209,12 @@ make clean
 - [`02-Sumadores/DefinicionSumarX.md`](./02-Sumadores/DefinicionSumarX.md) — Definición formal del lenguaje X basado en nombres de Pokémon (151 primeros).
 - [`02-Sumadores/OverEngineered SumarX/DefinicionSumarX/DefinicionSumarX.md`](./02-Sumadores/OverEngineered%20SumarX/DefinicionSumarX/DefinicionSumarX.md) — Especificación formal detallada del sumador con ejemplos de autómatas y gramáticas.
 - [`02-Sumadores/OverEngineered SumarX/DefinicionSumarX/SumaXME.md`](./02-Sumadores/OverEngineered%20SumarX/DefinicionSumarX/SumaXME.md) — Material complementario del ejercicio.
+- [`03-Calculadora/Calc.md`](./03-Calculadora/Calc.md) — Especificación de la Calculadora Pokémon: tokens, gramática, semántica, diagnósticos y casos de aceptación.
+- [`03-Calculadora/expresiones.txt`](./03-Calculadora/expresiones.txt) — Sesión de ejemplo con asignación, evaluación, duplicación y liberación de una variable.
 
 ---
 
 ## 📝 Notas
 
 - Se respetó el paradigma de **programación modular**, separando interfaz (`.h`) de implementación (`.c`).
-- Los archivos de test (`*Test.c`) son independientes y pueden compilarse y ejecutarse por separado.
+- Las pruebas de Strings usan archivos `*Test.c`; las de Calculadora, `tests/*_test.c`. Para ejecutar las de Calculadora, usar `make test` desde `03-Calculadora/`: el Makefile enlaza las dependencias de cada suite y las ejecuta en secuencia porque comparten archivos temporales.
